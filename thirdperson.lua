@@ -37,8 +37,7 @@ if not ThirdPerson then
       if alive(fp_unit) then
         -- correct aiming direction so that lasers are approximately the same in first and third person
         mvector3.set(look_vec_modified, fp_unit:camera():forward())
-        mvector3.rotate_with(look_vec_modified, Rotation(math.UP, 1))
-        mvector3.set_z(look_vec_modified, mvector3.z(look_vec_modified) - 0.01)
+        mvector3.rotate_with(look_vec_modified, Rotation(fp_unit:camera():rotation():z(), 1) * Rotation(fp_unit:camera():rotation():x(), -0.5))
         self:set_look_dir_instant(look_vec_modified)
       end
     end
