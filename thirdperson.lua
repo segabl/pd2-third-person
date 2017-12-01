@@ -36,6 +36,12 @@ if not ThirdPerson then
     self.unit = alive(self.unit) and self.unit or World:spawn_unit(unit_name, pos, rot)
     
     self.unit:base()._first_person_unit = player
+    player:base().pre_destroy = function (self, ...)
+      if alive(ThirdPerson.unit) then
+        World:delete_unit(ThirdPerson.unit)
+      end
+      PlayerBase.pre_destroy(self, ...)
+    end
 
     -- Hook some functions
     self.unit:base().pre_destroy = function (self, unit)
@@ -67,12 +73,11 @@ if not ThirdPerson then
     self.unit:movement().set_head_visibility = function (self, visible)
       if not self._plr_head_mesh_obj then
         local char_name = managers.criminals.convert_old_to_new_character_workname(managers.criminals:character_name_by_unit(self._unit))
-        if not char_name then
-          return
-        end
-        self._plr_head_mesh_obj = self._unit:get_object(Idstring("g_head_" .. char_name))
+        self._plr_head_mesh_obj = char_name and self._unit:get_object(Idstring("g_head_" .. char_name))
       end
-      self._plr_head_mesh_obj:set_visibility(visible)
+      if self._plr_head_mesh_obj then
+        self._plr_head_mesh_obj:set_visibility(visible)
+      end
       self._unit:inventory():set_mask_visibility(visible and self._unit:inventory()._mask_visibility)
     end
     self.unit:inventory().set_mask_visibility = function (self, state)
@@ -151,11 +156,7 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
     self._tp_camera_object:set_near_range(3)
     self._tp_camera_object:set_far_range(250000)
     self._tp_camera_object:set_fov(75)
-    self._tp_camera_object:set_position(Vector3(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z))
-    --self._tp_camera_object:set_rotation(Rotation(math.UP, 2.5) * Rotation(Vector3(1, 0, 0), -1)) --not really a solution for 3rd person aiming but improves it a bit
-    if not ThirdPerson.settings.immersive_first_person then
-      self._tp_camera_object:link(self._camera_object)
-    end
+    self._tp_camera_object:link(self._camera_object)
     self:set_third_person_position(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
   end
 
@@ -163,6 +164,14 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
     self._camera_object:set_fov(fov_value)
     self._tp_camera_object:set_fov(fov_value)
   end
+  
+  --[[
+  local set_position_original = PlayerCamera.set_position
+  function PlayerCamera:set_position(pos)
+    set_position_original(self, pos)
+    Application:draw_line(self:position(), self:position() + self:forward() * 10000, 1, 0, 0)
+  end
+  ]]
   
   if ThirdPerson.settings.immersive_first_person then
   
