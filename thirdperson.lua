@@ -4,6 +4,7 @@ if not ThirdPerson then
   ThirdPerson.mod_path = ModPath
   ThirdPerson.save_path = SavePath
   ThirdPerson.unit = nil
+  ThirdPerson.delayed_events = {}
   ThirdPerson.settings = {
     cam_x = 80,
     cam_y = 120,
@@ -11,6 +12,18 @@ if not ThirdPerson then
     first_person_on_steelsight = true,
     immersive_first_person = false
   }
+  
+  function ThirdPerson:log(...)
+    if DebugConsole and con then
+      con:print(...)
+    else
+      local str = ""
+      table.for_each_value({ ... }, function (v)
+        str = str .. tostring(v) .. "  "
+      end)
+      log(str)
+    end
+  end
   
   function ThirdPerson:setup_unit()
     local player = managers.player:local_player()
@@ -65,20 +78,28 @@ if not ThirdPerson then
     self.unit:inventory().set_mask_visibility = function (self, state)
       HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state)
     end
+    self.unit:sound().say = function () end
+    self.unit:sound().play = function () end
+    self.unit:sound()._play = function () end
     
     -- Set some stuff
     self.unit:inventory():set_melee_weapon(player_peer:melee_id(), true)
-    local weapon = player:inventory():equipped_unit():base()
-    self.unit:inventory():add_unit_by_factory_blueprint(weapon._factory_id .. "_npc", true, true, weapon._blueprint, weapon._cosmetics_data)
-
-    local sequence = managers.blackmarket:character_sequence_by_character_id(player_peer:character_id(), player_peer:id())
-    self.unit:damage():run_sequence_simple(sequence)
-    
+    self.unit:damage():run_sequence_simple(managers.blackmarket:character_sequence_by_character_id(player_peer:character_id(), player_peer:id()))
     self.unit:movement():set_character_anim_variables()
     self.unit:movement():set_head_visibility(not ThirdPerson.settings.immersive_first_person)
     self.unit:contour():remove("teammate")
-    self.unit:movement():set_team(managers.groupai:state():team_data(tweak_data.levels:get_default_team_ID("player")))
     self.unit:movement():set_attention_updator(function () end)
+    
+    -- Call delayed events
+    local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
+    if handler then
+      for _, v in ipairs(self.delayed_events) do
+        if handler[v.func] then
+          handler[v.func](handler, self.unit, unpack(v.params))
+        end
+      end
+      delayed_events = {}
+    end
     
     local current_level = managers.job and managers.job:current_level_id()
     if current_level then
@@ -87,15 +108,6 @@ if not ThirdPerson then
         self.unit:damage():run_sequence_simple(sequence)
       end
     end
-    
-    self.unit:movement():sync_movement_state(player_movement._current_state_name, player:character_damage():down_time())
-    self.unit:movement():sync_action_change_speed(player_movement:current_state()._cached_final_speed or 0)
-    
-    self.unit:movement():set_position()
-    
-    self.unit:sound().say = function () end
-    self.unit:sound().play = function () end
-    self.unit:sound()._play = function () end
     
     player_peer._unit = self.unit
     player_peer._equipped_armor_id = "level_1"
@@ -238,18 +250,18 @@ if RequiredScript == "lib/units/beings/player/states/playerstandard" then
 
   local _start_action_steelsight_original = PlayerStandard._start_action_steelsight
   function PlayerStandard:_start_action_steelsight(...)
-    if ThirdPerson.settings.first_person_on_steelsight then
+    _start_action_steelsight_original(self, ...)
+    if self._state_data.in_steelsight and ThirdPerson.settings.first_person_on_steelsight then
       self._unit:camera():set_first_person()
     end
-    return _start_action_steelsight_original(self, ...)
   end
 
   local _end_action_steelsight_original = PlayerStandard._end_action_steelsight
   function PlayerStandard:_end_action_steelsight(...)
+    _end_action_steelsight_original(self, ...)
     if ThirdPerson.settings.first_person_on_steelsight then
       self._unit:camera():set_third_person()
     end
-    return _end_action_steelsight_original(self, ...)
   end
 
 end
@@ -286,14 +298,14 @@ if RequiredScript == "lib/network/base/basenetworksession" then
     local player = managers.player:local_player()
     if alive(ThirdPerson.unit) then
       if func == "sync_carry" or func == "sync_remove_carry" then
-        con:print(...)
+        ThirdPerson:log(...)
         ThirdPerson.unit:movement():set_visual_carry(func == "sync_carry" and params[2])
       elseif func == "sync_deployable_equipment" then
-        con:print(...)
+        ThirdPerson:log(...)
         ThirdPerson.unit:movement():set_visual_deployable_equipment(params[2], params[3])
       elseif not blocked_network_events[func] and params[2] == player then
         if type(func) == "string" and not func:find("walk") then
-          con:print(...)
+          ThirdPerson:log(...)
         end
       
         table.remove(params, 1)
@@ -306,6 +318,12 @@ if RequiredScript == "lib/network/base/basenetworksession" then
         end
         
       end
+    elseif not blocked_network_events[func] and alive(player) and player == params[2] then
+      table.remove(params, 1)
+      table.remove(params, 1)
+      table.insert(params, player:network():peer():rpc())
+      table.insert(ThirdPerson.delayed_events, { func = func, params = params })
+      ThirdPerson:log("DELAYED", ...)
     end
     return send_to_peers_synched_original(self, ...)
   end
