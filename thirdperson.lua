@@ -1,66 +1,127 @@
-function setup_third_person_unit(player_peer)
+if not ThirdPerson then
 
-  local player = managers.player:local_player()
-  local player_movement = player:movement()
-  local pos = player_movement:m_pos()
-  local rot = player_movement:m_head_rot()
-  local unit_name = Idstring(tweak_data.blackmarket.characters[player_peer:character_id()].npc_unit:gsub("(.+)/npc_", "%1/player_") .. "_husk")
+  _G.ThirdPerson = {}
+  ThirdPerson.mod_path = ModPath
+  ThirdPerson.save_path = SavePath
+  ThirdPerson.unit = nil
+  ThirdPerson.settings = {
+    cam_x = 80,
+    cam_y = 120,
+    cam_z = 15,
+    first_person_on_steelsight = true,
+    immersive_first_person = false
+  }
   
-  local unit = alive(player:base()._third_person_unit) and player:base()._third_person_unit or World:spawn_unit(unit_name, pos, rot)
+  function ThirdPerson:setup_unit()
+    local player = managers.player:local_player()
+    local player_peer = player:network():peer()
+    local player_movement = player:movement()
+    local pos = player_movement:m_pos()
+    local rot = player_movement:m_head_rot()
+    local unit_name = Idstring(tweak_data.blackmarket.characters[player_peer:character_id()].npc_unit:gsub("(.+)/npc_", "%1/player_") .. "_husk")
+    
+    self.unit = alive(self.unit) and self.unit or World:spawn_unit(unit_name, pos, rot)
+    
+    self.unit:base()._first_person_unit = player
 
-  player:base()._third_person_unit = unit
-  unit:base()._first_person_unit = player
+    -- Hook some functions
+    self.unit:base().pre_destroy = function (self, unit)
+      self._unit:movement():pre_destroy(unit)
+      self._unit:inventory():pre_destroy(self._unit)
+      UnitBase.pre_destroy(self, unit)
+    end
+    local look_vec_modified = Vector3()
+    self.unit:movement().update = function (self, ...)
+      HuskPlayerMovement.update(self, ...)
+      local fp_unit = self._unit:base()._first_person_unit
+      if alive(fp_unit) then
+        -- correct aiming direction so that lasers are approximately the same in first and third person
+        mvector3.set(look_vec_modified, fp_unit:camera():forward())
+        mvector3.rotate_with(look_vec_modified, Rotation(math.UP, 1))
+        mvector3.set_z(look_vec_modified, mvector3.z(look_vec_modified) - 0.01)
+        self:set_look_dir_instant(look_vec_modified)
+      end
+    end
+    self.unit:movement().set_position = function (self, pos)
+      local fp_unit = self._unit:base()._first_person_unit
+      if alive(fp_unit) and fp_unit:camera():first_person() then
+        self._unit:set_position(Vector3(0, 0, -10000))
+      else
+        HuskPlayerMovement.set_position(self, alive(fp_unit) and fp_unit:movement():m_pos() or pos)
+      end
+    end
+    self.unit:movement().set_need_assistance = function (self) end
+    self.unit:movement().set_need_revive = function (self) end
+    self.unit:movement().set_head_visibility = function (self, visible)
+      if not self._plr_head_mesh_obj then
+        local char_name = managers.criminals.convert_old_to_new_character_workname(managers.criminals:character_name_by_unit(self._unit))
+        if not char_name then
+          return
+        end
+        self._plr_head_mesh_obj = self._unit:get_object(Idstring("g_head_" .. char_name))
+      end
+      self._plr_head_mesh_obj:set_visibility(visible)
+      self._unit:inventory():set_mask_visibility(visible and self._unit:inventory()._mask_visibility)
+    end
+    self.unit:inventory().set_mask_visibility = function (self, state)
+      HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state)
+    end
+    
+    -- Set some stuff
+    self.unit:inventory():set_melee_weapon(player_peer:melee_id(), true)
+    local weapon = player:inventory():equipped_unit():base()
+    self.unit:inventory():add_unit_by_factory_blueprint(weapon._factory_id .. "_npc", true, true, weapon._blueprint, weapon._cosmetics_data)
 
-  -- Hook some functions
-  unit:movement().update = function (self, ...)
-    HuskPlayerMovement.update(self, ...)
-    local fp_unit = self._unit:base()._first_person_unit
-    if alive(fp_unit) then
-      self:set_look_dir_instant(fp_unit:camera():forward())
+    local sequence = managers.blackmarket:character_sequence_by_character_id(player_peer:character_id(), player_peer:id())
+    self.unit:damage():run_sequence_simple(sequence)
+    
+    self.unit:movement():set_character_anim_variables()
+    self.unit:movement():set_head_visibility(not ThirdPerson.settings.immersive_first_person)
+    self.unit:contour():remove("teammate")
+    self.unit:movement():set_team(managers.groupai:state():team_data(tweak_data.levels:get_default_team_ID("player")))
+    self.unit:movement():set_attention_updator(function () end)
+    
+    self.unit:movement():sync_movement_state(player_movement._current_state_name, player:character_damage():down_time())
+    self.unit:movement():sync_action_change_speed(player_movement:current_state()._cached_final_speed or 0)
+    
+    self.unit:movement():set_position()
+    
+    self.unit:sound().say = function () end
+    self.unit:sound().play = function () end
+    self.unit:sound()._play = function () end
+    
+    player_peer._unit = self.unit
+    player_peer._equipped_armor_id = "level_1"
+    player_peer:_update_equipped_armor()
+    player_peer._unit = player
+    
+    player:camera():set_third_person()
+    
+    -- Unregister from groupai manager so it doesnt count as an actual criminal
+    managers.groupai:state():unregister_criminal(self.unit)
+  end
+  
+  function ThirdPerson:save()
+    local file = io.open(self.save_path .. "third_person.txt", "w+")
+    if file then
+      file:write(json.encode(self.settings))
+      file:close()
     end
   end
-  unit:movement().set_position = function (self, pos)
-    local fp_unit = self._unit:base()._first_person_unit
-    if alive(fp_unit) and fp_unit:camera():first_person() then
-      self._unit:set_position(Vector3(0, 0, -10000))
-    else
-      HuskPlayerMovement.set_position(self, alive(fp_unit) and fp_unit:movement():m_pos() or pos)
+
+  function ThirdPerson:load()
+    local file = io.open(self.save_path .. "third_person.txt", "r")
+    if file then
+      local data = json.decode(file:read("*all")) or {}
+      file:close()
+      for k, v in pairs(data) do
+        self.settings[k] = v
+      end
     end
   end
-  unit:movement().set_need_assistance = function (self) end
-  unit:movement().set_need_revive = function (self) end
-  
-  unit:inventory():set_melee_weapon(player_peer:melee_id(), true)
-  local weapon = player:inventory():equipped_unit():base()
-  unit:inventory():add_unit_by_factory_blueprint(weapon._factory_id .. "_npc", true, true, weapon._blueprint, weapon._cosmetics_data)
 
-  local sequence = managers.blackmarket:character_sequence_by_character_id(player_peer:character_id(), player_peer:id())
-  unit:damage():run_sequence_simple(sequence)
-  
-  unit:movement():set_character_anim_variables()
-  unit:contour():remove("teammate")
-  unit:movement():set_team(managers.groupai:state():team_data(tweak_data.levels:get_default_team_ID("player")))
-  unit:movement():set_attention_updator(function () end)
-  
-  unit:movement():sync_movement_state(player_movement._current_state_name, player:character_damage():down_time())
-  unit:movement():sync_action_change_speed(player_movement:current_state()._cached_final_speed or 0)
-  
-  unit:movement():set_position()
-  
-  unit:sound().say = function () end
-  unit:sound().play = function () end
-  unit:sound()._play = function () end
-  
-  player_peer._unit = unit
-  player_peer._equipped_armor_id = "level_1"
-  player_peer:_update_equipped_armor()
-  player_peer._unit = player
-  
-  --unit:set_slot(0)
-  
-  player:camera():set_third_person()
-  
 end
+
 
 if RequiredScript == "lib/units/beings/player/playercamera" then
 
@@ -71,13 +132,45 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
     self._tp_camera_object:set_near_range(3)
     self._tp_camera_object:set_far_range(250000)
     self._tp_camera_object:set_fov(75)
-    self._tp_camera_object:set_position(self._camera_object:position() + Vector3(80, -150, 20))
-    self._tp_camera_object:link(self._camera_object)
+    self._tp_camera_object:set_position(Vector3(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z))
+    --self._tp_camera_object:set_rotation(Rotation(math.UP, 2.5) * Rotation(Vector3(1, 0, 0), -1)) --not really a solution for 3rd person aiming but improves it a bit
+    if not ThirdPerson.settings.immersive_first_person then
+      self._tp_camera_object:link(self._camera_object)
+    end
+    self:set_third_person_position(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
   end
 
   function PlayerCamera:set_FOV(fov_value)
     self._camera_object:set_fov(fov_value)
     self._tp_camera_object:set_fov(fov_value)
+  end
+  
+  if ThirdPerson.settings.immersive_first_person then
+  
+    local set_position_original = PlayerCamera.set_position
+    function PlayerCamera:set_position(pos)
+      set_position_original(self, pos)
+      if alive(ThirdPerson.unit) then
+        local pos = ThirdPerson.unit:movement():m_head_pos()
+        local rot = ThirdPerson.unit:movement():m_head_rot()
+        self._tp_camera_object:set_position(pos + rot:z() * 10)
+      end
+    end
+    
+    local set_rotation_original = PlayerCamera.set_rotation
+    function PlayerCamera:set_rotation(rot)
+      set_rotation_original(self, rot)
+      if alive(ThirdPerson.unit) then
+        self._tp_camera_object:set_rotation(ThirdPerson.unit:movement():m_head_rot())
+      end
+    end
+    
+  end
+  
+  function PlayerCamera:set_third_person_position(x, y, z)
+    local pos = self._camera_object:position()
+    local rot = self._camera_object:rotation()
+    self._tp_camera_object:set_position(pos + rot:x() * x + rot:y() * y + rot:z() * z)
   end
   
   function PlayerCamera:toggle_third_person()
@@ -91,13 +184,13 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
   function PlayerCamera:set_first_person()
     self:camera_unit():base():set_target_tilt(self:camera_unit():base()._fp_target_tilt or 0)
     self._vp:set_camera(self._camera_object)
-    self._unit:base()._third_person_unit:movement():set_position()
+    ThirdPerson.unit:movement():set_position()
   end
   
   function PlayerCamera:set_third_person()
     self:camera_unit():base():set_target_tilt(0)
     self._vp:set_camera(self._tp_camera_object)
-    self._unit:base()._third_person_unit:movement():set_position()
+    ThirdPerson.unit:movement():set_position()
   end
   
   function PlayerCamera:first_person()
@@ -138,13 +231,17 @@ if RequiredScript == "lib/units/beings/player/states/playerstandard" then
 
   local _start_action_steelsight_original = PlayerStandard._start_action_steelsight
   function PlayerStandard:_start_action_steelsight(...)
-     self._unit:camera():set_first_person()
+    if ThirdPerson.settings.first_person_on_steelsight then
+      self._unit:camera():set_first_person()
+    end
     return _start_action_steelsight_original(self, ...)
   end
 
   local _end_action_steelsight_original = PlayerStandard._end_action_steelsight
   function PlayerStandard:_end_action_steelsight(...)
-     self._unit:camera():set_third_person()
+    if ThirdPerson.settings.first_person_on_steelsight then
+      self._unit:camera():set_third_person()
+    end
     return _end_action_steelsight_original(self, ...)
   end
 
@@ -160,7 +257,7 @@ if RequiredScript == "lib/network/base/basenetworksession" then
   local peer_by_unit_key_original = BaseNetworkSession.peer_by_unit_key
   function BaseNetworkSession:peer_by_unit_key(wanted_key)
     local player = managers.player:local_player()
-    if alive(player) and alive(player:base()._third_person_unit) and player:base()._third_person_unit:key() == wanted_key then
+    if alive(player) and alive(ThirdPerson.unit) and ThirdPerson.unit:key() == wanted_key then
       return peer_by_unit_key_original(self, player:key())
     end
     return peer_by_unit_key_original(self, wanted_key)
@@ -180,21 +277,20 @@ if RequiredScript == "lib/network/base/basenetworksession" then
     local params = { ... }
     local func = params[1]
     local player = managers.player:local_player()
-    local tp_unit = alive(player) and player:base()._third_person_unit
-    if alive(tp_unit) then
-      if func == "sync_carry" or func == "sync_remove_carry" or func == "server_drop_carry" then
+    if alive(ThirdPerson.unit) then
+      if func == "sync_carry" or func == "sync_remove_carry" then
         con:print(...)
-        tp_unit:movement():set_visual_carry(func == "sync_carry" and params[2])
+        ThirdPerson.unit:movement():set_visual_carry(func == "sync_carry" and params[2])
       elseif func == "sync_deployable_equipment" then
         con:print(...)
-        tp_unit:movement():set_visual_deployable_equipment(params[2], params[3])
+        ThirdPerson.unit:movement():set_visual_deployable_equipment(params[2], params[3])
       elseif not blocked_network_events[func] and params[2] == player then
         if type(func) == "string" and not func:find("walk") then
           con:print(...)
         end
       
         table.remove(params, 1)
-        params[1] = tp_unit
+        params[1] = ThirdPerson.unit
         table.insert(params, player:network():peer():rpc())
         
         local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
@@ -216,7 +312,7 @@ if RequiredScript == "lib/managers/criminalsmanager" then
     if k:find("_by_unit") then
       local orig = v
       CriminalsManager[k] = function (self, unit)
-        if alive(unit) and unit.base and unit:base() and alive(unit:base()._first_person_unit) then
+        if alive(ThirdPerson.unit) and unit == ThirdPerson.unit and alive(unit:base()._first_person_unit) then
           return orig(self, unit:base()._first_person_unit)
         end
         return orig(self, unit)
@@ -231,7 +327,7 @@ if RequiredScript == "lib/units/weapons/newnpcraycastweaponbase" then
 
   local fire_blank_original = NewNPCRaycastWeaponBase.fire_blank
   function NewNPCRaycastWeaponBase:fire_blank(direction, impact, ...)
-    if alive(self._setup.user_unit) and self._setup.user_unit:base()._first_person_unit then
+    if alive(self._setup.user_unit) and self._setup.user_unit == ThirdPerson.unit then
       return fire_blank_original(self, direction, false, ...)
     end
     return fire_blank_original(self, direction, impact, ...)
@@ -239,7 +335,7 @@ if RequiredScript == "lib/units/weapons/newnpcraycastweaponbase" then
   
   local auto_fire_blank_original = NewNPCRaycastWeaponBase.auto_fire_blank
   function NewNPCRaycastWeaponBase:auto_fire_blank(direction, impact, ...)
-    if alive(self._setup.user_unit) and self._setup.user_unit:base()._first_person_unit then
+    if alive(self._setup.user_unit) and self._setup.user_unit == ThirdPerson.unit then
       return auto_fire_blank_original(self, direction, false, ...)
     end
     return auto_fire_blank_original(self, direction, impact, ...)
@@ -253,9 +349,113 @@ if RequiredScript == "lib/network/base/networkpeer" then
   local spawn_unit_original = NetworkPeer.spawn_unit
   function NetworkPeer:spawn_unit(...)
     local unit = spawn_unit_original(self, ...)
-    if unit == managers.player:local_player() then
-      setup_third_person_unit(self)
+    if self == managers.network:session():local_peer() then
+      ThirdPerson:setup_unit()
     end
   end
 
+end
+
+
+if RequiredScript == "lib/managers/group_ai_states/groupaistatebase" then
+
+  for k, v in pairs(GroupAIStateBase) do
+    if k:find("^on_criminal_") then
+      local orig = v
+      GroupAIStateBase[k] = function (self, unit, ...)
+        if alive(ThirdPerson.unit) and unit == ThirdPerson.unit then
+          return
+        end
+        orig(self, unit, ...)
+      end
+    end
+  end
+
+end
+
+
+if RequiredScript == "lib/managers/menumanager" then
+
+   Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInitThirdPerson", function(loc)
+    for _, filename in pairs(file.GetFiles(ThirdPerson.mod_path .. "loc/") or {}) do
+      local str = filename:match("^(.*).txt$")
+      if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
+        loc:load_localization_file(ThirdPerson.mod_path .. "loc/" .. filename)
+        loaded = true
+        break
+      end
+    end
+    loc:load_localization_file(ThirdPerson.mod_path .. "loc/english.txt", false)
+  end)
+
+  local menu_id_main = "ThirdPersonMenu"
+  Hooks:Add("MenuManagerSetupCustomMenus", "MenuManagerSetupCustomMenusThirdPerson", function(menu_manager, nodes)
+    MenuHelper:NewMenu(menu_id_main)
+  end)
+
+  Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThirdPerson", function(menu_manager, nodes)
+    
+    MenuCallbackHandler.ThirdPerson_value = function(self, item)
+      ThirdPerson.settings[item:name()] = item:value()
+      ThirdPerson:save()
+    end
+    
+    MenuCallbackHandler.ThirdPerson_toggle = function(self, item)
+      ThirdPerson.settings[item:name()] = item:value() == "on"
+      ThirdPerson:save()
+    end
+    
+    MenuCallbackHandler.ThirdPerson_cam_pos = function(self, item)
+      MenuCallbackHandler.ThirdPerson_value(self, item)
+      if managers.player and managers.player:local_player() then
+        managers.player:local_player():camera():set_third_person_position(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
+      end
+    end
+    
+    MenuHelper:AddSlider({
+      id = "cam_x",
+      title = "ThirdPerson_menu_cam_x",
+      callback = "ThirdPerson_cam_pos",
+      value = ThirdPerson.settings.cam_x,
+      min = -200,
+      max = 200,
+      step = 1,
+      show_value = true,
+      menu_id = menu_id_main,
+      priority = 99
+    })
+    MenuHelper:AddSlider({
+      id = "cam_y",
+      title = "ThirdPerson_menu_cam_y",
+      callback = "ThirdPerson_cam_pos",
+      value = ThirdPerson.settings.cam_y,
+      min = 30,
+      max = 300,
+      step = 1,
+      show_value = true,
+      menu_id = menu_id_main,
+      priority = 98
+    })
+    MenuHelper:AddSlider({
+      id = "cam_z",
+      title = "ThirdPerson_menu_cam_z",
+      callback = "ThirdPerson_cam_pos",
+      value = ThirdPerson.settings.cam_z,
+      min = -60,
+      max = 60,
+      step = 1,
+      show_value = true,
+      menu_id = menu_id_main,
+      priority = 97
+    })
+    
+  end)
+
+  Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenusPlayerThirdPerson", function(menu_manager, nodes)
+    nodes[menu_id_main] = MenuHelper:BuildMenu(menu_id_main, { area_bg = "half" })
+    MenuHelper:AddMenuItem(nodes["blt_options"], menu_id_main, "ThirdPerson_menu_main_name", "ThirdPerson_menu_main_desc")
+  end)
+  
+  ThirdPerson:load()
+  
 end

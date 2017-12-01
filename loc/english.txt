@@ -1,0 +1,7 @@
+{
+  "ThirdPerson_menu_main_name" : "Third Person",
+  "ThirdPerson_menu_main_desc" : "Control third person camera settings",
+  "ThirdPerson_menu_cam_x" : "Camera horizontal",
+  "ThirdPerson_menu_cam_y" : "Camera distance",
+  "ThirdPerson_menu_cam_z" : "Camera height"
+}
