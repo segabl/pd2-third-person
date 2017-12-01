@@ -81,6 +81,14 @@ if not ThirdPerson then
     self.unit:movement():set_team(managers.groupai:state():team_data(tweak_data.levels:get_default_team_ID("player")))
     self.unit:movement():set_attention_updator(function () end)
     
+    local current_level = managers.job and managers.job:current_level_id()
+    if current_level then
+      local sequence = tweak_data.levels[current_level] and tweak_data.levels[current_level].player_sequence
+      if sequence then
+        self.unit:damage():run_sequence_simple(sequence)
+      end
+    end
+    
     self.unit:movement():sync_movement_state(player_movement._current_state_name, player:character_damage():down_time())
     self.unit:movement():sync_action_change_speed(player_movement:current_state()._cached_final_speed or 0)
     
@@ -447,6 +455,22 @@ if RequiredScript == "lib/managers/menumanager" then
       show_value = true,
       menu_id = menu_id_main,
       priority = 97
+    })
+    
+    MenuHelper:AddDivider({
+      id = "divider1",
+      size = 24,
+      menu_id = menu_id_main,
+      priority = 90
+    })
+    
+    MenuHelper:AddToggle({
+      id = "first_person_on_steelsight",
+      title = "ThirdPerson_menu_first_person_on_steelsight",
+      callback = "ThirdPerson_toggle",
+      value = ThirdPerson.settings.first_person_on_steelsight,
+      menu_id = menu_id_main,
+      priority = 89
     })
     
   end)
