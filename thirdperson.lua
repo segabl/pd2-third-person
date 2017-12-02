@@ -37,6 +37,7 @@ if not ThirdPerson then
     self.fp_unit = player
     self.unit = alive(self.unit) and self.unit or World:spawn_unit(unit_name, pos, rot)
     
+    -- The third person unit should be destroyed whenever the first person unit is destroyed
     player:base().pre_destroy = function (self, ...)
       if alive(ThirdPerson.unit) then
         World:delete_unit(ThirdPerson.unit)
@@ -94,19 +95,27 @@ if not ThirdPerson then
     self.unit:inventory().set_mask_visibility = function (self, state)
       HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state)
     end
+    -- We don't want our third person unit to make any sound, so we're plugging empty functions here
     self.unit:sound().say = function () end
     self.unit:sound().play = function () end
     self.unit:sound()._play = function () end
     
-    -- Set some stuff
+    -- Setup some stuff
     self.unit:inventory():set_melee_weapon(player_peer:melee_id(), true)
+    
     self.unit:damage():run_sequence_simple(managers.blackmarket:character_sequence_by_character_id(player_peer:character_id(), player_peer:id()))
+    local level_data = managers.job and managers.job:current_level_data()
+    if level_data and level_data.player_sequence then
+      self.unit:damage():run_sequence_simple(level_data.player_sequence)
+    end
+    
     self.unit:movement():set_character_anim_variables()
     self.unit:movement():update_armor()
     self.unit:movement():set_head_visibility(not ThirdPerson.settings.immersive_first_person)
+    
     self.unit:contour():remove("teammate")
     
-    -- Call delayed events
+    -- Call missed events
     local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
     if handler then
       for _, v in ipairs(self.delayed_events) do
@@ -115,14 +124,6 @@ if not ThirdPerson then
         end
       end
       self.delayed_events = {}
-    end
-    
-    local current_level = managers.job and managers.job:current_level_id()
-    if current_level then
-      local sequence = tweak_data.levels[current_level] and tweak_data.levels[current_level].player_sequence
-      if sequence then
-        self.unit:damage():run_sequence_simple(sequence)
-      end
     end
     
     player:camera():set_third_person()
@@ -288,6 +289,7 @@ if RequiredScript == "lib/network/base/basenetworksession" then
     return self:peer_by_unit_key(unit:key())
   end
 
+  -- we need to adapt this to get our local peer whenever it is called with the third person unit
   local peer_by_unit_key_original = BaseNetworkSession.peer_by_unit_key
   function BaseNetworkSession:peer_by_unit_key(wanted_key)
     local player = managers.player:local_player()
@@ -297,6 +299,8 @@ if RequiredScript == "lib/network/base/basenetworksession" then
     return peer_by_unit_key_original(self, wanted_key)
   end
   
+  -- everything that the local player sends to clients we will copy, change the unit to the third person unit and then send back to ourself
+  -- so it properly syncs the third person unit with the local players actions
   local blocked_network_events = {
     say = true,
     unit_sound_play = true,
@@ -334,6 +338,8 @@ if RequiredScript == "lib/network/base/basenetworksession" then
         
       end
     elseif not blocked_network_events[func] and alive(player) and player == params[2] then
+      -- everything that is sent to peers before the third person unit is spawned (= everything that happens during NetworkPeer:spawn_unit)
+      -- is collected to a table so it can be executed on the third person unit as soon as it's created
       table.remove(params, 1)
       table.remove(params, 1)
       table.insert(params, player:network():peer():rpc())
@@ -348,14 +354,12 @@ end
 
 if RequiredScript == "lib/managers/criminalsmanager" then
 
-  for k, v in pairs(CriminalsManager) do
-    if k:find("_by_unit") then
-      local orig = v
-      CriminalsManager[k] = function (self, unit)
-        if unit == ThirdPerson.unit and alive(ThirdPerson.unit) and alive(ThirdPerson.fp_unit) then
-          return orig(self, ThirdPerson.fp_unit)
-        end
-        return orig(self, unit)
+  -- we need to change the *_by_unit functions of CriminalsManager to return the data of the first person unit
+  -- when called with the third person unit so it can get data like mask id or character name without problem
+  for func_name, orig_func in pairs(CriminalsManager) do
+    if func_name:find("_by_unit") then
+      CriminalsManager[func_name] = function (self, unit)
+        return orig_func(self, unit == ThirdPerson.unit and alive(ThirdPerson.unit) and alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit or unit)
       end
     end
   end
@@ -365,6 +369,7 @@ end
 
 if RequiredScript == "lib/units/weapons/newnpcraycastweaponbase" then
 
+  -- Change the fire functions to always fire without impact since we already have bullet impact from the first person unit
   local fire_blank_original = NewNPCRaycastWeaponBase.fire_blank
   function NewNPCRaycastWeaponBase:fire_blank(direction, impact, ...)
     if alive(self._setup.user_unit) and self._setup.user_unit == ThirdPerson.unit then
@@ -386,6 +391,7 @@ end
 
 if RequiredScript == "lib/network/base/networkpeer" then
 
+  -- setup the third person unit whenever the local player is spawned
   local spawn_unit_original = NetworkPeer.spawn_unit
   function NetworkPeer:spawn_unit(...)
     local unit = spawn_unit_original(self, ...)
@@ -400,14 +406,16 @@ end
 
 if RequiredScript == "lib/managers/group_ai_states/groupaistatebase" then
 
-  for k, v in pairs(GroupAIStateBase) do
-    if k:find("^on_criminal_") then
-      local orig = v
-      GroupAIStateBase[k] = function (self, unit, ...)
+  -- we need to block all the function calls of on_criminal_* from GroupAIStateBase since it would try to access
+  -- data of the third person unit, which isn't there since we unregistered it when we created it
+  -- it's not the best solution but it's easier than preventing any calls to any of the functions by the third person unit
+  for func_name, orig_func in pairs(GroupAIStateBase) do
+    if func_name:find("^on_criminal_") then
+      GroupAIStateBase[func_name] = function (self, unit, ...)
         if alive(ThirdPerson.unit) and unit == ThirdPerson.unit then
           return
         end
-        orig(self, unit, ...)
+        orig_func(self, unit, ...)
       end
     end
   end
