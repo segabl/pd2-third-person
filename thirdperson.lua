@@ -114,7 +114,7 @@ if not ThirdPerson then
           handler[v.func](handler, self.unit, unpack(v.params))
         end
       end
-      delayed_events = {}
+      self.delayed_events = {}
     end
     
     local current_level = managers.job and managers.job:current_level_id()
