@@ -406,8 +406,8 @@ end
 
 if RequiredScript == "lib/managers/group_ai_states/groupaistatebase" then
 
-  -- we need to block all the function calls of on_criminal_* from GroupAIStateBase since it would try to access
-  -- data of the third person unit, which isn't there since we unregistered it when we created it
+  -- we need to block on_criminal_* function calls from GroupAIStateBase when called with the third person unit
+  -- since it would try to access data of the third person unit, which isn't there since we unregistered it when we created it
   -- it's not the best solution but it's easier than preventing any calls to any of the functions by the third person unit
   for func_name, orig_func in pairs(GroupAIStateBase) do
     if func_name:find("^on_criminal_") then
@@ -415,7 +415,7 @@ if RequiredScript == "lib/managers/group_ai_states/groupaistatebase" then
         if alive(ThirdPerson.unit) and unit == ThirdPerson.unit then
           return
         end
-        orig_func(self, unit, ...)
+        return orig_func(self, unit, ...)
       end
     end
   end
@@ -424,6 +424,8 @@ end
 
 
 if RequiredScript == "lib/managers/menumanager" then
+
+  ThirdPerson:load()
 
    Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInitThirdPerson", function(loc)
     for _, filename in pairs(file.GetFiles(ThirdPerson.mod_path .. "loc/") or {}) do
@@ -520,7 +522,5 @@ if RequiredScript == "lib/managers/menumanager" then
     nodes[menu_id_main] = MenuHelper:BuildMenu(menu_id_main, { area_bg = "half" })
     MenuHelper:AddMenuItem(nodes["blt_options"], menu_id_main, "ThirdPerson_menu_main_name", "ThirdPerson_menu_main_desc")
   end)
-  
-  ThirdPerson:load()
   
 end
