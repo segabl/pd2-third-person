@@ -1,8 +1,8 @@
 # pd2-third-person
 Experimental BLT mod that implements and enables third person mode
 
-## Warning!
-This is highly experimental and may (at some point) crash your game. There are also some issues with the player model not updating its position correctly after some actions (jumping will fix it most of the times) and probably others that have yet to be figured out and fixed.
+## WARNING
+This is highly experimental and may (at some point) crash your game. There are also some issues that that I have yet to find the cause for to be able to fix them.
 
 ## Known issues
 - Third person unit sometimes stops syncing positions correctly after some actions (jumping usually fixes it)
