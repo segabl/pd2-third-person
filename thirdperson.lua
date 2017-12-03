@@ -11,6 +11,7 @@ if not ThirdPerson then
     cam_y = 120,
     cam_z = 15,
     first_person_on_steelsight = true,
+    third_person_crosshair = false,
     immersive_first_person = false
   }
   
@@ -206,7 +207,17 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
   function PlayerCamera:init(...)
     init_original(self, ...)
     self._third_person = false
+    self._tp_forward = Vector3()
     self._slot_mask = managers.slot:get_mask("world_geometry")
+    self._slot_mask_all = managers.slot:get_mask("bullet_impact_targets")
+    local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2)
+    self._crosshair = hud.panel:bitmap({
+      name = "third_person_crosshair",
+      texture = "guis/textures/pd2/none_icon",
+      w = 24,
+      h = 24,
+      visible = ThirdPerson.settings.third_person_crosshair
+    })
     self:refresh_tp_cam_settings()
   end
   
@@ -218,17 +229,30 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
     end
   end
   
-  local mvec_pos = Vector3()
-  local mvec_dir = Vector3()
+  local mvec = Vector3()
   function PlayerCamera:check_set_third_person_position(pos, rot)
     if self:third_person() then
-      mvector3.set(mvec_dir, self._tp_cam_dir)
-      mvector3.rotate_with(mvec_dir, rot)
-      local ray = World:raycast("ray", pos, pos + mvec_dir * (self._tp_cam_dis + 20), "slot_mask", self._slot_mask)
-      mvector3.set(mvec_pos, mvec_dir)
-      mvector3.multiply(mvec_pos, ray and ray.distance - 20 or self._tp_cam_dis)
-      mvector3.add(mvec_pos, pos)
-      self._camera_controller:set_camera(mvec_pos)
+      -- set cam position
+      mvector3.set(mvec, self._tp_cam_dir)
+      mvector3.rotate_with(mvec, rot)
+      local ray = World:raycast("ray", pos, pos + mvec * (self._tp_cam_dis + 20), "slot_mask", self._slot_mask)
+      mvector3.multiply(mvec, ray and ray.distance - 20 or self._tp_cam_dis)
+      mvector3.add(mvec, pos)
+      self._camera_controller:set_camera(mvec)
+      -- set crosshair
+      if self._crosshair:visible() then
+        mvector3.set(mvec, self:forward())
+        ray = World:raycast("ray", self:position(), self:position() + mvec * 10000, "slot_mask", self._slot_mask_all)
+        mvector3.multiply(mvec, ray and ray.distance or 10000)
+        mvector3.add(mvec, self:position())
+        mvector3.set(mvec, managers.hud._workspace:world_to_screen(self._camera_object, mvec))
+        self._crosshair:set_center(mvec.x, mvec.y)
+        if ray and ray.unit and managers.enemy:is_enemy(ray.unit) then
+          self._crosshair:set_color(Color.red)
+        else
+          self._crosshair:set_color(Color.white)
+        end
+      end
     end
     if ThirdPerson.settings.immersive_first_person and alive(ThirdPerson.unit) then
       local pos = ThirdPerson.unit:movement():m_head_pos()
@@ -261,12 +285,14 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
   
   function PlayerCamera:set_first_person()
     self._third_person = false
+    self._crosshair:set_visible(false)
     ThirdPerson.unit:movement():set_position(Vector3())
   end
   
   function PlayerCamera:set_third_person()
     if not self._toggled_fp then
       self._third_person = true
+      self._crosshair:set_visible(ThirdPerson.settings.third_person_crosshair)
       ThirdPerson.unit:movement():set_position(Vector3())
     end
   end
@@ -557,6 +583,14 @@ if RequiredScript == "lib/managers/menumanager" then
       value = ThirdPerson.settings.first_person_on_steelsight,
       menu_id = menu_id_main,
       priority = 89
+    })
+    MenuHelper:AddToggle({
+      id = "third_person_crosshair",
+      title = "ThirdPerson_menu_third_person_crosshair",
+      callback = "ThirdPerson_toggle",
+      value = ThirdPerson.settings.third_person_crosshair,
+      menu_id = menu_id_main,
+      priority = 88
     })
     
     MenuHelper:AddDivider({
