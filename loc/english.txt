@@ -4,5 +4,5 @@
   "ThirdPerson_menu_cam_x" : "Camera horizontal",
   "ThirdPerson_menu_cam_y" : "Camera distance",
   "ThirdPerson_menu_cam_z" : "Camera height",
-  "ThirdPerson_menu_first_person_on_steelsight" : "Aiming down sights toggles first person"
+  "ThirdPerson_menu_first_person_on_steelsight" : "Aiming down sights activates first person"
 }
