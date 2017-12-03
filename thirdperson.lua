@@ -16,9 +16,9 @@ if not ThirdPerson then
   
   function ThirdPerson:log(...)
     if DebugConsole and con then
-      con:print(...)
+      con:print("[ThirdPerson]", ...)
     else
-      local str = ""
+      local str = "[ThirdPerson] "
       table.for_each_value({ ... }, function (v)
         str = str .. tostring(v) .. "  "
       end)
@@ -26,16 +26,28 @@ if not ThirdPerson then
     end
   end
   
+  local husk_names = {
+    wild = "units/pd2_dlc_wild/characters/npc_criminals_wild_1/player_criminal_wild_husk"
+  }
   function ThirdPerson:setup_unit(unit)
     local player = unit or managers.player:local_player()
     local player_peer = player:network():peer()
     local player_movement = player:movement()
     local pos = player_movement:m_pos()
     local rot = player_movement:m_head_rot()
-    local unit_name = Idstring(tweak_data.blackmarket.characters[player_peer:character_id()].npc_unit:gsub("(.+)/npc_", "%1/player_") .. "_husk")
+    local char_id = player_peer:character_id()
+    local unit_name = husk_names[char_id] or tweak_data.blackmarket.characters[char_id].npc_unit:gsub("(.+)/npc_", "%1/player_") .. "_husk"
+    local unit_name_ids = Idstring(unit_name)
+    
+    if not DB:has(Idstring("unit"), unit_name_ids) then
+      ThirdPerson:log("ERROR: Could not find player husk unit for " .. char_id .. ", assumed " .. unit_name)
+      self.fp_unit = nil
+      self.unit = nil
+      return
+    end
     
     self.fp_unit = player
-    self.unit = alive(self.unit) and self.unit or World:spawn_unit(unit_name, pos, rot)
+    self.unit = alive(self.unit) and self.unit or World:spawn_unit(unit_name_ids, pos, rot)
     
     -- The third person unit should be destroyed whenever the first person unit is destroyed
     player:base().pre_destroy = function (self, ...)
