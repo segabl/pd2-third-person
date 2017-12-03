@@ -166,21 +166,20 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
   local mvec_pos = Vector3()
   function PlayerCamera:check_set_third_person_position(pos, rot)
     if self:third_person() then
-      local dir = rot:x() * ThirdPerson.settings.cam_x + rot:y() * (-ThirdPerson.settings.cam_y) + rot:z() * ThirdPerson.settings.cam_z
+      local dir = Vector3(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
       local dis = mvector3.length(dir)
       mvector3.normalize(dir)
-      
+      mvector3.rotate_with(dir, rot)
       mvector3.set(mvec_pos, dir)
       mvector3.multiply(mvec_pos, dis)
       mvector3.add(mvec_pos, pos)
-      
       local ray = World:raycast("ray", pos, pos + dir * (dis + 20), "slot_mask", self._slot_mask)
       if ray then
         mvector3.set(mvec_pos, dir)
         mvector3.multiply(mvec_pos, ray.distance - 20)
         mvector3.add(mvec_pos, pos)
       end
-      self._camera_controller:set_camera(pos_tp)
+      self._camera_controller:set_camera(mvec_pos)
     end
     if ThirdPerson.settings.immersive_first_person and alive(ThirdPerson.unit) then
       local pos = ThirdPerson.unit:movement():m_head_pos()
