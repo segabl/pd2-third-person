@@ -61,10 +61,44 @@ if not ThirdPerson then
         self:set_look_dir_instant(look_vec_modified)
       end
     end
+    self.unit:movement().sync_action_walk_nav_point = function (self, pos, speed, action)
+      speed = speed or 1
+      self._movement_path = self._movement_path or {}
+      self._movement_history = self._movement_history or {}
+      local path_len = #self._movement_path
+      pos = pos or path_len > 0 and self._movement_path[path_len].pos or mvector3.copy(self:m_pos())
+      local on_ground = self:_chk_ground_ray(pos)
+      local type = "ground"
+      if self._zipline and self._zipline.enabled then
+        type = "zipline"
+      elseif not on_ground then
+        type = "air"
+      end
+      local prev_node = self._movement_history[#self._movement_history]
+      if type == "ground" and prev_node and self:action_is(prev_node.action, "jump") then
+        type = "air"
+      end
+      local node = {
+        pos = pos,
+        speed = speed,
+        type = type,
+        action = {action}
+      }
+      table.insert(self._movement_path, node)
+      table.insert(self._movement_history, node)
+      local len = #self._movement_history
+      if len > 1 then
+        self:_determine_node_action(#self._movement_history, node)
+      end
+      for i = 1, #self._movement_history - tweak_data.network.player_path_history, 1 do
+        table.remove(self._movement_history, 1)
+      end
+    end
     self.unit:movement().set_position = function (self, pos)
       if alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:camera():first_person() then
         self._unit:set_position(Vector3(0, 0, -10000))
       else
+        -- partial fix for movement sync, not perfect as it overrides some movement animations like jumping
         HuskPlayerMovement.set_position(self, alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:movement():m_pos() or pos)
       end
     end
@@ -161,28 +195,27 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
     init_original(self, ...)
     self._third_person = false
     self._slot_mask = managers.slot:get_mask("world_geometry")
-    self:_calc_tp_cam_dis_len()
+    self:refresh_tp_cam_settings()
   end
   
-  function PlayerCamera:_calc_tp_cam_dis_len()
-    self._tp_cam_dis_len = mvector3.length(Vector3(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z))
+  function PlayerCamera:refresh_tp_cam_settings()
+    self._tp_cam_dir = Vector3(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
+    self._tp_cam_dis = mvector3.length(self._tp_cam_dir)
+    if self._tp_cam_dis > 0 then
+      mvector3.multiply(self._tp_cam_dir, 1 / self._tp_cam_dis)
+    end
   end
   
   local mvec_pos = Vector3()
+  local mvec_dir = Vector3()
   function PlayerCamera:check_set_third_person_position(pos, rot)
     if self:third_person() then
-      local dir = Vector3(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
-      mvector3.normalize(dir)
-      mvector3.rotate_with(dir, rot)
-      mvector3.set(mvec_pos, dir)
-      mvector3.multiply(mvec_pos, self._tp_cam_dis_len)
+      mvector3.set(mvec_dir, self._tp_cam_dir)
+      mvector3.rotate_with(mvec_dir, rot)
+      local ray = World:raycast("ray", pos, pos + mvec_dir * (self._tp_cam_dis + 20), "slot_mask", self._slot_mask)
+      mvector3.set(mvec_pos, mvec_dir)
+      mvector3.multiply(mvec_pos, ray and ray.distance - 20 or self._tp_cam_dis)
       mvector3.add(mvec_pos, pos)
-      local ray = World:raycast("ray", pos, pos + dir * (self._tp_cam_dis_len + 20), "slot_mask", self._slot_mask)
-      if ray then
-        mvector3.set(mvec_pos, dir)
-        mvector3.multiply(mvec_pos, ray.distance - 20)
-        mvector3.add(mvec_pos, pos)
-      end
       self._camera_controller:set_camera(mvec_pos)
     end
     if ThirdPerson.settings.immersive_first_person and alive(ThirdPerson.unit) then
@@ -453,7 +486,7 @@ if RequiredScript == "lib/managers/menumanager" then
     MenuCallbackHandler.ThirdPerson_cam_pos = function(self, item)
       MenuCallbackHandler.ThirdPerson_value(self, item)
       if managers.player and managers.player:local_player() then
-        managers.player:local_player():camera():_calc_tp_cam_dis_len()
+        managers.player:local_player():camera():refresh_tp_cam_settings()
       end
     end
     
