@@ -159,53 +159,39 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
   local init_original = PlayerCamera.init
   function PlayerCamera:init(...)
     init_original(self, ...)
-    self._tp_camera_object = World:create_camera()
-    self._tp_camera_object:set_near_range(3)
-    self._tp_camera_object:set_far_range(250000)
-    self._tp_camera_object:set_fov(75)
-    self._tp_camera_object:link(self._camera_object)
-    self:set_third_person_position(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
-  end
-
-  function PlayerCamera:set_FOV(fov_value)
-    self._camera_object:set_fov(fov_value)
-    self._tp_camera_object:set_fov(fov_value)
+    self._third_person = false
   end
   
-  --[[
+
   local set_position_original = PlayerCamera.set_position
   function PlayerCamera:set_position(pos)
     set_position_original(self, pos)
-    Application:draw_line(self:position(), self:position() + self:forward() * 10000, 1, 0, 0)
-  end
-  ]]
-  
-  if ThirdPerson.settings.immersive_first_person then
-  
-    local set_position_original = PlayerCamera.set_position
-    function PlayerCamera:set_position(pos)
-      set_position_original(self, pos)
-      if alive(ThirdPerson.unit) then
-        local pos = ThirdPerson.unit:movement():m_head_pos()
-        local rot = ThirdPerson.unit:movement():m_head_rot()
-        self._tp_camera_object:set_position(pos + rot:z() * 10)
-      end
+    if self:third_person() then
+      local rot = self:rotation()
+      self._camera_controller:set_camera(pos + rot:x() * ThirdPerson.settings.cam_x + rot:y() * (-ThirdPerson.settings.cam_y) + rot:z() * ThirdPerson.settings.cam_z)
     end
-    
-    local set_rotation_original = PlayerCamera.set_rotation
-    function PlayerCamera:set_rotation(rot)
-      set_rotation_original(self, rot)
-      if alive(ThirdPerson.unit) then
-        self._tp_camera_object:set_rotation(ThirdPerson.unit:movement():m_head_rot())
-      end
+    --[[
+    if alive(ThirdPerson.unit) then
+      local pos = ThirdPerson.unit:movement():m_head_pos()
+      local rot = ThirdPerson.unit:movement():m_head_rot()
+      self._tp_camera_object:set_position(pos + rot:z() * 10)
     end
-    
+    ]]
   end
   
-  function PlayerCamera:set_third_person_position(x, y, z)
-    local pos = self._camera_object:position()
-    local rot = self._camera_object:rotation()
-    self._tp_camera_object:set_position(pos + rot:x() * x + rot:y() * y + rot:z() * z)
+  local mvec1 = Vector3()
+  local set_rotation_original = PlayerCamera.set_rotation
+  function PlayerCamera:set_rotation(rot)
+    set_rotation_original(self, rot)
+    if self:third_person() then
+      local pos = self:position()
+      self._camera_controller:set_camera(pos + rot:x() * ThirdPerson.settings.cam_x + rot:y() * (-ThirdPerson.settings.cam_y) + rot:z() * ThirdPerson.settings.cam_z)
+    end
+    --[[
+    if alive(ThirdPerson.unit) then
+      self._tp_camera_object:set_rotation(ThirdPerson.unit:movement():m_head_rot())
+    end
+    ]]
   end
   
   function PlayerCamera:toggle_third_person()
@@ -217,23 +203,21 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
   end
   
   function PlayerCamera:set_first_person()
-    self:camera_unit():base():set_target_tilt(self:camera_unit():base()._fp_target_tilt or 0)
-    self._vp:set_camera(self._camera_object)
+    self._third_person = false
     ThirdPerson.unit:movement():set_position(Vector3())
   end
   
   function PlayerCamera:set_third_person()
-    self:camera_unit():base():set_target_tilt(0)
-    self._vp:set_camera(self._tp_camera_object)
+    self._third_person = true
     ThirdPerson.unit:movement():set_position(Vector3())
   end
   
   function PlayerCamera:first_person()
-    return self._vp:camera() == self._camera_object
+    return not self._third_person
   end
   
   function PlayerCamera:third_person()
-    return self._vp:camera() == self._tp_camera_object
+    return self._third_person
   end
 
 end
