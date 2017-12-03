@@ -26,8 +26,8 @@ if not ThirdPerson then
     end
   end
   
-  function ThirdPerson:setup_unit()
-    local player = managers.player:local_player()
+  function ThirdPerson:setup_unit(unit)
+    local player = unit or managers.player:local_player()
     local player_peer = player:network():peer()
     local player_movement = player:movement()
     local pos = player_movement:m_pos()
@@ -319,9 +319,8 @@ if RequiredScript == "lib/network/base/basenetworksession" then
   -- we need to adapt this to get our local peer whenever it is called with the third person unit
   local peer_by_unit_key_original = BaseNetworkSession.peer_by_unit_key
   function BaseNetworkSession:peer_by_unit_key(wanted_key)
-    local player = managers.player:local_player()
-    if alive(player) and alive(ThirdPerson.unit) and ThirdPerson.unit:key() == wanted_key then
-      return peer_by_unit_key_original(self, player:key())
+    if alive(ThirdPerson.fp_unit) and alive(ThirdPerson.unit) and ThirdPerson.unit:key() == wanted_key then
+      return peer_by_unit_key_original(self, ThirdPerson.fp_unit:key())
     end
     return peer_by_unit_key_original(self, wanted_key)
   end
@@ -341,7 +340,6 @@ if RequiredScript == "lib/network/base/basenetworksession" then
   function BaseNetworkSession:send_to_peers_synched(...)
     local params = { ... }
     local func = params[1]
-    local player = managers.player:local_player()
     if alive(ThirdPerson.unit) then
       if func == "sync_carry" or func == "sync_remove_carry" then
         ThirdPerson:log(...)
@@ -349,14 +347,14 @@ if RequiredScript == "lib/network/base/basenetworksession" then
       elseif func == "sync_deployable_equipment" then
         ThirdPerson:log(...)
         ThirdPerson.unit:movement():set_visual_deployable_equipment(params[2], params[3])
-      elseif not blocked_network_events[func] and params[2] == player then
+      elseif not blocked_network_events[func] and params[2] == ThirdPerson.fp_unit then
         if type(func) == "string" and not func:find("walk") then
           ThirdPerson:log(...)
         end
       
         table.remove(params, 1)
         params[1] = ThirdPerson.unit
-        table.insert(params, player:network():peer():rpc())
+        table.insert(params, ThirdPerson.fp_unit:network():peer():rpc())
         
         local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
         if handler and handler[func] then
@@ -364,12 +362,12 @@ if RequiredScript == "lib/network/base/basenetworksession" then
         end
         
       end
-    elseif not blocked_network_events[func] and alive(player) and player == params[2] then
+    elseif not blocked_network_events[func] and alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit == params[2] then
       -- everything that is sent to peers before the third person unit is spawned (= everything that happens during NetworkPeer:spawn_unit)
       -- is collected to a table so it can be executed on the third person unit as soon as it's created
       table.remove(params, 1)
       table.remove(params, 1)
-      table.insert(params, player:network():peer():rpc())
+      table.insert(params, ThirdPerson.fp_unit:network():peer():rpc())
       table.insert(ThirdPerson.delayed_events, { func = func, params = params })
       ThirdPerson:log("DELAYED", ...)
     end
@@ -418,14 +416,16 @@ end
 
 if RequiredScript == "lib/network/base/networkpeer" then
 
-  -- setup the third person unit whenever the local player is spawned
-  local spawn_unit_original = NetworkPeer.spawn_unit
-  function NetworkPeer:spawn_unit(...)
-    local unit = spawn_unit_original(self, ...)
-    if self == managers.network:session():local_peer() then
-      ThirdPerson:setup_unit()
+  -- setup the third person unit whenever the local player is set
+  local set_unit_original = NetworkPeer.set_unit
+  function NetworkPeer:set_unit(unit, ...)
+    if unit and self == managers.network:session():local_peer() then
+      ThirdPerson.fp_unit = unit
     end
-    return unit
+    set_unit_original(self, unit, ...)
+    if ThirdPerson.fp_unit == unit then
+      ThirdPerson:setup_unit(unit)
+    end
   end
 
 end
@@ -485,8 +485,8 @@ if RequiredScript == "lib/managers/menumanager" then
     
     MenuCallbackHandler.ThirdPerson_cam_pos = function(self, item)
       MenuCallbackHandler.ThirdPerson_value(self, item)
-      if managers.player and managers.player:local_player() then
-        managers.player:local_player():camera():refresh_tp_cam_settings()
+      if alive(ThirdPerson.fp_unit) then
+        ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()
       end
     end
     
