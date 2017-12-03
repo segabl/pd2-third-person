@@ -161,19 +161,23 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
     init_original(self, ...)
     self._third_person = false
     self._slot_mask = managers.slot:get_mask("world_geometry")
+    self:_calc_tp_cam_dis_len()
+  end
+  
+  function PlayerCamera:_calc_tp_cam_dis_len()
+    self._tp_cam_dis_len = mvector3.length(Vector3(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z))
   end
   
   local mvec_pos = Vector3()
   function PlayerCamera:check_set_third_person_position(pos, rot)
     if self:third_person() then
       local dir = Vector3(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
-      local dis = mvector3.length(dir)
       mvector3.normalize(dir)
       mvector3.rotate_with(dir, rot)
       mvector3.set(mvec_pos, dir)
-      mvector3.multiply(mvec_pos, dis)
+      mvector3.multiply(mvec_pos, self._tp_cam_dis_len)
       mvector3.add(mvec_pos, pos)
-      local ray = World:raycast("ray", pos, pos + dir * (dis + 20), "slot_mask", self._slot_mask)
+      local ray = World:raycast("ray", pos, pos + dir * (self._tp_cam_dis_len + 20), "slot_mask", self._slot_mask)
       if ray then
         mvector3.set(mvec_pos, dir)
         mvector3.multiply(mvec_pos, ray.distance - 20)
@@ -449,8 +453,7 @@ if RequiredScript == "lib/managers/menumanager" then
     MenuCallbackHandler.ThirdPerson_cam_pos = function(self, item)
       MenuCallbackHandler.ThirdPerson_value(self, item)
       if managers.player and managers.player:local_player() then
-        local cam =  managers.player:local_player():camera()
-        cam:check_set_third_person_position(cam:position(), cam:rotation())
+        managers.player:local_player():camera():_calc_tp_cam_dis_len()
       end
     end
     
