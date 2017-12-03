@@ -468,8 +468,6 @@ end
 
 if RequiredScript == "lib/managers/menumanager" then
 
-  local mod = BLT.Mods:GetModOwnerOfFile(ThirdPerson.mod_path)
-
   ThirdPerson:load()
 
    Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInitThirdPerson", function(loc)
@@ -568,16 +566,16 @@ if RequiredScript == "lib/managers/menumanager" then
       priority = 80
     })
     
-    BLT.Keybinds:register_keybind(mod, {
-      id = "toggle_cam_mode",
-      allow_game = true,
-      show_in_menu = false,
-      callback = function()
-        if alive(ThirdPerson.fp_unit) then
-          ThirdPerson.fp_unit:camera():toggle_third_person()
-        end
+    local mod = BLT.Mods.GetModOwnerOfFile and BLT.Mods:GetModOwnerOfFile(ThirdPerson.mod_path)
+    if not mod then
+      return
+    end
+    
+    BLT.Keybinds:register_keybind(mod, { id = "toggle_cam_mode", allow_game = true, show_in_menu = false, callback = function()
+      if alive(ThirdPerson.fp_unit) then
+        ThirdPerson.fp_unit:camera():toggle_third_person()
       end
-    })
+    end })
     local bind = BLT.Keybinds:get_keybind("toggle_cam_mode")
     local key = bind and bind:Key() or ""
     
@@ -592,17 +590,12 @@ if RequiredScript == "lib/managers/menumanager" then
       priority = 79
     })
     
-    BLT.Keybinds:register_keybind(mod, {
-      id = "flip_camera_side",
-      allow_game = true,
-      show_in_menu = false,
-      callback = function()
-        if alive(ThirdPerson.fp_unit) then
-          ThirdPerson.settings.cam_x = -ThirdPerson.settings.cam_x
-          ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()
-        end
+    BLT.Keybinds:register_keybind(mod, { id = "flip_camera_side", allow_game = true, show_in_menu = false, callback = function()
+      if alive(ThirdPerson.fp_unit) then
+        ThirdPerson.settings.cam_x = -ThirdPerson.settings.cam_x
+        ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()
       end
-    })
+    end })
     local bind = BLT.Keybinds:get_keybind("flip_camera_side")
     local key = bind and bind:Key() or ""
     
