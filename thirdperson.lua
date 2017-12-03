@@ -160,38 +160,45 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
   function PlayerCamera:init(...)
     init_original(self, ...)
     self._third_person = false
+    self._slot_mask = managers.slot:get_mask("world_geometry")
   end
   
-
+  local mvec_pos = Vector3()
+  function PlayerCamera:check_set_third_person_position(pos, rot)
+    if self:third_person() then
+      local dir = rot:x() * ThirdPerson.settings.cam_x + rot:y() * (-ThirdPerson.settings.cam_y) + rot:z() * ThirdPerson.settings.cam_z
+      local dis = mvector3.length(dir)
+      mvector3.normalize(dir)
+      
+      mvector3.set(mvec_pos, dir)
+      mvector3.multiply(mvec_pos, dis)
+      mvector3.add(mvec_pos, pos)
+      
+      local ray = World:raycast("ray", pos, pos + dir * (dis + 20), "slot_mask", self._slot_mask)
+      if ray then
+        mvector3.set(mvec_pos, dir)
+        mvector3.multiply(mvec_pos, ray.distance - 20)
+        mvector3.add(mvec_pos, pos)
+      end
+      self._camera_controller:set_camera(pos_tp)
+    end
+    if ThirdPerson.settings.immersive_first_person and alive(ThirdPerson.unit) then
+      local pos = ThirdPerson.unit:movement():m_head_pos()
+      local rot = ThirdPerson.unit:movement():m_head_rot()
+      self._camera_controller:set_camera(pos + rot:y() * 10 + rot:z() * 10)
+    end
+  end
+  
   local set_position_original = PlayerCamera.set_position
   function PlayerCamera:set_position(pos)
     set_position_original(self, pos)
-    if self:third_person() then
-      local rot = self:rotation()
-      self._camera_controller:set_camera(pos + rot:x() * ThirdPerson.settings.cam_x + rot:y() * (-ThirdPerson.settings.cam_y) + rot:z() * ThirdPerson.settings.cam_z)
-    end
-    --[[
-    if alive(ThirdPerson.unit) then
-      local pos = ThirdPerson.unit:movement():m_head_pos()
-      local rot = ThirdPerson.unit:movement():m_head_rot()
-      self._tp_camera_object:set_position(pos + rot:z() * 10)
-    end
-    ]]
+    self:check_set_third_person_position(pos, self:rotation())
   end
   
-  local mvec1 = Vector3()
   local set_rotation_original = PlayerCamera.set_rotation
   function PlayerCamera:set_rotation(rot)
     set_rotation_original(self, rot)
-    if self:third_person() then
-      local pos = self:position()
-      self._camera_controller:set_camera(pos + rot:x() * ThirdPerson.settings.cam_x + rot:y() * (-ThirdPerson.settings.cam_y) + rot:z() * ThirdPerson.settings.cam_z)
-    end
-    --[[
-    if alive(ThirdPerson.unit) then
-      self._tp_camera_object:set_rotation(ThirdPerson.unit:movement():m_head_rot())
-    end
-    ]]
+    self:check_set_third_person_position(self:position(), rot)
   end
   
   function PlayerCamera:toggle_third_person()
@@ -443,7 +450,8 @@ if RequiredScript == "lib/managers/menumanager" then
     MenuCallbackHandler.ThirdPerson_cam_pos = function(self, item)
       MenuCallbackHandler.ThirdPerson_value(self, item)
       if managers.player and managers.player:local_player() then
-        managers.player:local_player():camera():set_third_person_position(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
+        local cam =  managers.player:local_player():camera()
+        cam:check_set_third_person_position(cam:position(), cam:rotation())
       end
     end
     
