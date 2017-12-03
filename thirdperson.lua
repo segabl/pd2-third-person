@@ -27,7 +27,7 @@ if not ThirdPerson then
   end
   
   local husk_names = {
-    wild = "units/pd2_dlc_wild/characters/npc_criminals_wild_1/player_criminal_wild_husk"
+    wild = "units/pd2_dlc_wild/characters/npc_criminals_wild_1/player_criminal_wild_husk" -- thanks Overkill >.<
   }
   function ThirdPerson:setup_unit(unit)
     local player = unit or managers.player:local_player()
@@ -69,7 +69,7 @@ if not ThirdPerson then
       if alive(ThirdPerson.fp_unit) then
         -- correct aiming direction so that lasers are approximately the same in first and third person
         mvector3.set(look_vec_modified, ThirdPerson.fp_unit:camera():forward())
-        mvector3.rotate_with(look_vec_modified, Rotation(ThirdPerson.fp_unit:camera():rotation():z(), 1) * Rotation(ThirdPerson.fp_unit:camera():rotation():x(), -0.5))
+        mvector3.rotate_with(look_vec_modified, Rotation(ThirdPerson.fp_unit:camera():rotation():z(), 1))
         self:set_look_dir_instant(look_vec_modified)
       end
     end
@@ -251,8 +251,10 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
   
   function PlayerCamera:toggle_third_person()
     if self:first_person() then
+      self._toggled_fp = false
       self:set_third_person()
     else
+      self._toggled_fp = true
       self:set_first_person()
     end
   end
@@ -263,8 +265,10 @@ if RequiredScript == "lib/units/beings/player/playercamera" then
   end
   
   function PlayerCamera:set_third_person()
-    self._third_person = true
-    ThirdPerson.unit:movement():set_position(Vector3())
+    if not self._toggled_fp then
+      self._third_person = true
+      ThirdPerson.unit:movement():set_position(Vector3())
+    end
   end
   
   function PlayerCamera:first_person()
@@ -464,6 +468,8 @@ end
 
 if RequiredScript == "lib/managers/menumanager" then
 
+  local mod = BLT.Mods:GetModOwnerOfFile(ThirdPerson.mod_path)
+
   ThirdPerson:load()
 
    Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInitThirdPerson", function(loc)
@@ -553,6 +559,62 @@ if RequiredScript == "lib/managers/menumanager" then
       value = ThirdPerson.settings.first_person_on_steelsight,
       menu_id = menu_id_main,
       priority = 89
+    })
+    
+    MenuHelper:AddDivider({
+      id = "divider1",
+      size = 24,
+      menu_id = menu_id_main,
+      priority = 80
+    })
+    
+    BLT.Keybinds:register_keybind(mod, {
+      id = "toggle_cam_mode",
+      allow_game = true,
+      show_in_menu = false,
+      callback = function()
+        if alive(ThirdPerson.fp_unit) then
+          ThirdPerson.fp_unit:camera():toggle_third_person()
+        end
+      end
+    })
+    local bind = BLT.Keybinds:get_keybind("toggle_cam_mode")
+    local key = bind and bind:Key() or ""
+    
+    MenuHelper:AddKeybinding({
+      id = "toggle_cam_mode",
+      title = "ThirdPerson_menu_toggle_cam_mode",
+      desc= "ThirdPerson_menu_toggle_cam_mode_desc",
+      connection_name = "toggle_cam_mode",
+      binding = key,
+      button = key,
+      menu_id = menu_id_main,
+      priority = 79
+    })
+    
+    BLT.Keybinds:register_keybind(mod, {
+      id = "flip_camera_side",
+      allow_game = true,
+      show_in_menu = false,
+      callback = function()
+        if alive(ThirdPerson.fp_unit) then
+          ThirdPerson.settings.cam_x = -ThirdPerson.settings.cam_x
+          ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()
+        end
+      end
+    })
+    local bind = BLT.Keybinds:get_keybind("flip_camera_side")
+    local key = bind and bind:Key() or ""
+    
+    MenuHelper:AddKeybinding({
+      id = "flip_camera_side",
+      title = "ThirdPerson_menu_flip_camera_side",
+      desc= "ThirdPerson_menu_flip_camera_side_desc",
+      connection_name = "flip_camera_side",
+      binding = key,
+      button = key,
+      menu_id = menu_id_main,
+      priority = 78
     })
     
   end)
