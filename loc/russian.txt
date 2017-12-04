@@ -1,0 +1,13 @@
+{
+  "ThirdPerson_menu_main_name" : "Third Person",
+  "ThirdPerson_menu_main_desc" : "Настройки камеры от 3-го лица",
+  "ThirdPerson_menu_cam_x" : "Камера по горизонтали",
+  "ThirdPerson_menu_cam_y" : "Дистанция камеры",
+  "ThirdPerson_menu_cam_z" : "Высота камеры",
+  "ThirdPerson_menu_first_person_on_steelsight" : "Прицельная стрельба активирует вид от 1-го лица",
+  "ThirdPerson_menu_third_person_crosshair" : "Показать перекрестие в виде от 3-го лица",
+  "ThirdPerson_menu_flip_camera_side" : "Выбор положения камеры",
+  "ThirdPerson_menu_flip_camera_side_desc" : "Горячая клавиша для переключения горизонтального положения камеры",
+  "ThirdPerson_menu_toggle_cam_mode" : "Режим камеры",
+  "ThirdPerson_menu_toggle_cam_mode_desc" : "Горячая клавиша для переключения между видами от 1-го и 3-го лица"
+}
