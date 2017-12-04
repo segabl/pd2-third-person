@@ -22,15 +22,14 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
   MenuCallbackHandler.ThirdPerson_value = function(self, item)
     ThirdPerson.settings[item:name()] = item:value()
     ThirdPerson:save()
+    if alive(ThirdPerson.fp_unit) then
+      ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()
+    end
   end
   
   MenuCallbackHandler.ThirdPerson_toggle = function(self, item)
     ThirdPerson.settings[item:name()] = item:value() == "on"
     ThirdPerson:save()
-  end
-  
-  MenuCallbackHandler.ThirdPerson_cam_pos = function(self, item)
-    MenuCallbackHandler.ThirdPerson_value(self, item)
     if alive(ThirdPerson.fp_unit) then
       ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()
     end
@@ -39,7 +38,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
   MenuHelper:AddSlider({
     id = "cam_x",
     title = "ThirdPerson_menu_cam_x",
-    callback = "ThirdPerson_cam_pos",
+    callback = "ThirdPerson_value",
     value = ThirdPerson.settings.cam_x,
     min = -200,
     max = 200,
@@ -51,7 +50,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
   MenuHelper:AddSlider({
     id = "cam_y",
     title = "ThirdPerson_menu_cam_y",
-    callback = "ThirdPerson_cam_pos",
+    callback = "ThirdPerson_value",
     value = ThirdPerson.settings.cam_y,
     min = 30,
     max = 300,
@@ -63,7 +62,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
   MenuHelper:AddSlider({
     id = "cam_z",
     title = "ThirdPerson_menu_cam_z",
-    callback = "ThirdPerson_cam_pos",
+    callback = "ThirdPerson_value",
     value = ThirdPerson.settings.cam_z,
     min = -60,
     max = 60,

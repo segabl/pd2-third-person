@@ -22,6 +22,7 @@ function PlayerCamera:refresh_tp_cam_settings()
   if self._tp_cam_dis > 0 then
     mvector3.multiply(self._tp_cam_dir, 1 / self._tp_cam_dis)
   end
+  self._crosshair:set_visible(self:third_person() and ThirdPerson.settings.third_person_crosshair)
 end
 
 local mvec = Vector3()
