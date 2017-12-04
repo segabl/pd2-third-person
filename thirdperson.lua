@@ -64,6 +64,7 @@ if not ThirdPerson then
       self._unit:inventory():pre_destroy(self._unit)
       UnitBase.pre_destroy(self, unit)
     end
+    
     local look_vec_modified = Vector3()
     self.unit:movement().update = function (self, ...)
       HuskPlayerMovement.update(self, ...)
@@ -74,6 +75,7 @@ if not ThirdPerson then
         self:set_look_dir_instant(look_vec_modified)
       end
     end
+    
     self.unit:movement().sync_action_walk_nav_point = function (self, pos, speed, action)
       speed = speed or 1
       self._movement_path = self._movement_path or {}
@@ -107,6 +109,7 @@ if not ThirdPerson then
         table.remove(self._movement_history, 1)
       end
     end
+    
     self.unit:movement().set_position = function (self, pos)
       if alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:camera():first_person() then
         self._unit:set_position(Vector3(0, 0, -10000))
@@ -115,10 +118,12 @@ if not ThirdPerson then
         HuskPlayerMovement.set_position(self, alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:movement():m_pos() or pos)
       end
     end
+    
     self.unit:movement().set_need_assistance = function (self) end
     self.unit:movement().set_need_revive = function (self) end
+    
+    -- needs work, doesnt get all criminals heads
     self.unit:movement().set_head_visibility = function (self, visible)
-      -- needs work, doesnt get all criminals heads
       local char_name = managers.criminals.convert_old_to_new_character_workname(managers.criminals:character_name_by_unit(self._unit))
       local head_obj = char_name and self._unit:get_object(Idstring("g_head_" .. char_name))
       if head_obj then
@@ -130,6 +135,7 @@ if not ThirdPerson then
       end
       self._unit:inventory():set_mask_visibility(visible and self._unit:inventory()._mask_visibility)
     end
+    
     self.unit:movement().update_armor = function (self)
       if alive(ThirdPerson.fp_unit) then
         local player_peer = ThirdPerson.fp_unit:network():peer()
@@ -139,9 +145,34 @@ if not ThirdPerson then
         player_peer._unit = ThirdPerson.fp_unit
       end
     end
+    
     self.unit:inventory().set_mask_visibility = function (self, state)
       HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state)
     end
+    
+    -- adjust weapon switch to support custom weapons
+    self.unit:inventory()._perform_switch_equipped_weapon = function (self, weap_index, blueprint_string, cosmetics_string, peer)
+      local equipped = ThirdPerson.fp_unit:inventory():equipped_unit()
+      local weapon_name = equipped and equipped:base()._factory_id and equipped:base()._factory_id .. "_npc" or "wpn_fps_ass_amcar_npc"
+      cosmetics_string = cosmetics_string or self:cosmetics_string_from_peer(peer, weapon_name)
+      local factory_weapon = tweak_data.weapon.factory[weapon_name]
+      if not factory_weapon or not DB:has(Idstring("unit"), Idstring(factory_weapon.unit)) then
+        local new_name = weapon_name:gsub("_npc$", "")
+        local weapon = tweak_data.weapon[managers.weapon_factory:get_weapon_id_by_factory_id(new_name)]
+        local based_on = weapon and weapon.based_on and tweak_data.weapon[weapon.based_on]
+        local based_on_name = based_on and tweak_data.upgrades.definitions[based_on]
+        local selection = { "wpn_fps_pis_g17_npc", "wpn_fps_ass_amcar_npc" }
+        new_name = based_on and based_on.use_data.selection_index == weapon.use_data.selection_index and (based_on_name .. "_npc") or weapon and selection[weapon.use_data.selection_index] or selection[1]
+        ThirdPerson:log("WARNING: " .. weapon_name .. " does not exist! Replaced with " .. new_name)
+        weapon_name = new_name
+        blueprint_string = managers.weapon_factory:blueprint_to_string(weapon_name, managers.weapon_factory:get_default_blueprint_by_factory_id(weapon_name))
+        cosmetics_string = nil
+      end
+      if weapon_name then
+        self:add_unit_by_factory_name(weapon_name, true, true, blueprint_string, cosmetics_string)
+      end
+    end
+    
     -- We don't want our third person unit to make any sound, so we're plugging empty functions here
     self.unit:sound().say = function () end
     self.unit:sound().play = function () end
@@ -384,18 +415,23 @@ if RequiredScript == "lib/network/base/basenetworksession" then
     local func = params[1]
     if alive(ThirdPerson.unit) then
       if func == "sync_carry" or func == "sync_remove_carry" then
-        ThirdPerson:log(...)
+        --ThirdPerson:log(...)
         ThirdPerson.unit:movement():set_visual_carry(func == "sync_carry" and params[2])
       elseif func == "sync_deployable_equipment" then
-        ThirdPerson:log(...)
+        --ThirdPerson:log(...)
         ThirdPerson.unit:movement():set_visual_deployable_equipment(params[2], params[3])
       elseif not blocked_network_events[func] and params[2] == ThirdPerson.fp_unit then
         if type(func) == "string" and not func:find("walk") then
-          ThirdPerson:log(...)
+          --ThirdPerson:log(...)
         end
       
         table.remove(params, 1)
         params[1] = ThirdPerson.unit
+        if func == "reload_weapon" and #params == 1 then
+          -- Luffy pls, why u do dis?
+          table.insert(params, false)
+          table.insert(params, 1)
+        end
         table.insert(params, ThirdPerson.fp_unit:network():peer():rpc())
         
         local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
@@ -411,7 +447,7 @@ if RequiredScript == "lib/network/base/basenetworksession" then
       table.remove(params, 1)
       table.insert(params, ThirdPerson.fp_unit:network():peer():rpc())
       table.insert(ThirdPerson.delayed_events, { func = func, params = params })
-      ThirdPerson:log("DELAYED", ...)
+      --ThirdPerson:log("DELAYED", ...)
     end
     return send_to_peers_synched_original(self, ...)
   end
