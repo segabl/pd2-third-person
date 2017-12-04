@@ -173,7 +173,7 @@ if not ThirdPerson then
         local based_on = weapon and weapon.based_on and tweak_data.weapon[weapon.based_on]
         local based_on_name = based_on and tweak_data.upgrades.definitions[based_on]
         local selection = { "wpn_fps_pis_g17_npc", "wpn_fps_ass_amcar_npc" }
-        new_name = based_on and based_on.use_data.selection_index == weapon.use_data.selection_index and (based_on_name .. "_npc") or weapon and selection[weapon.use_data.selection_index] or selection[1]
+        new_name = based_on_name and based_on.use_data.selection_index == weapon.use_data.selection_index and (based_on_name .. "_npc") or weapon and selection[weapon.use_data.selection_index] or selection[1]
         ThirdPerson:log("WARNING: " .. weapon_name .. " does not exist! Replaced with " .. new_name)
         weapon_name = new_name
         blueprint_string = managers.weapon_factory:blueprint_to_string(weapon_name, managers.weapon_factory:get_default_blueprint_by_factory_id(weapon_name))
