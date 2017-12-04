@@ -41,7 +41,7 @@ if not ThirdPerson then
     local unit_name_ids = Idstring(unit_name)
     
     if not DB:has(Idstring("unit"), unit_name_ids) then
-      ThirdPerson:log("ERROR: Could not find player husk unit for " .. char_id .. ", assumed " .. unit_name)
+      ThirdPerson:log("ERROR: Could not find player husk unit for " .. char_id .. "! Assumed " .. unit_name)
       self.fp_unit = nil
       self.unit = nil
       return
@@ -600,8 +600,9 @@ if RequiredScript == "lib/managers/menumanager" then
       priority = 80
     })
     
-    local mod = BLT.Mods.GetModOwnerOfFile and BLT.Mods:GetModOwnerOfFile(ThirdPerson.mod_path)
+    local mod = BLT.Mods.GetModOwnerOfFile and BLT.Mods:GetModOwnerOfFile(ThirdPerson.mod_path) or BLT.Mods.GetMod and BLT.Mods:GetMod("Third Person")
     if not mod then
+      ThirdPerson:log("ERROR: Could not get mod data, keybinds can not be added!")
       return
     end
     
