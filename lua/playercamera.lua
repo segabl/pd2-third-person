@@ -8,7 +8,8 @@ function PlayerCamera:init(...)
   local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2)
   self._crosshair = hud.panel:bitmap({
     name = "third_person_crosshair",
-    texture = "guis/textures/pd2/none_icon",
+    texture = "units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_green_il",
+    blend_mode = "add",
     w = 24,
     h = 24,
     visible = ThirdPerson.settings.third_person_crosshair
@@ -44,9 +45,9 @@ function PlayerCamera:check_set_third_person_position(pos, rot)
       mvector3.set(mvec, managers.hud._workspace:world_to_screen(self._camera_object, mvec))
       self._crosshair:set_center(mvec.x, mvec.y)
       if ray and ray.unit and managers.enemy:is_enemy(ray.unit) then
-        self._crosshair:set_color(Color.red)
+        self._crosshair:set_image("units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_yellow_il")
       else
-        self._crosshair:set_color(Color.white)
+        self._crosshair:set_image("units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_green_il")
       end
     end
   end
