@@ -653,3 +653,13 @@ if RequiredScript == "lib/managers/menumanager" then
   end)
   
 end
+
+if RequiredScript == "lib/units/beings/player/huskplayerinventory" then
+	local ThirdPerson_add_unit_by_name = HuskPlayerInventory.add_unit_by_name
+	function HuskPlayerInventory:add_unit_by_name(new_unit_name, ...)
+		if not DB:has(Idstring("unit"), new_unit_name) then
+			new_unit_name = Idstring("units/payday2/weapons/wpn_npc_m4/wpn_npc_m4")
+		end
+		ThirdPerson_add_unit_by_name(self, new_unit_name, ...)
+	end
+end

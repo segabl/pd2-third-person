@@ -16,6 +16,7 @@
     { "hook_id" : "lib/network/base/networkpeer", "script_path" : "thirdperson.lua" },
     { "hook_id" : "lib/managers/criminalsmanager", "script_path" : "thirdperson.lua" },
     { "hook_id" : "lib/managers/menumanager", "script_path" : "thirdperson.lua" },
-    { "hook_id" : "lib/managers/group_ai_states/groupaistatebase", "script_path" : "thirdperson.lua" }
+    { "hook_id" : "lib/managers/group_ai_states/groupaistatebase", "script_path" : "thirdperson.lua" },
+    { "hook_id" : "lib/units/beings/player/huskplayerinventory", "script_path" : "thirdperson.lua" }
   ]
 }
