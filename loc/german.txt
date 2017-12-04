@@ -1,0 +1,13 @@
+{
+  "ThirdPerson_menu_main_name" : "Third Person",
+  "ThirdPerson_menu_main_desc" : "Third Person Kamera Einstellungen anpassen",
+  "ThirdPerson_menu_cam_x" : "Kamera Horizontale",
+  "ThirdPerson_menu_cam_y" : "Kamera Abstand",
+  "ThirdPerson_menu_cam_z" : "Kamera Höhe",
+  "ThirdPerson_menu_first_person_on_steelsight" : "Benutzen des Visiers aktiviert First Person",
+  "ThirdPerson_menu_third_person_crosshair" : "Ein Fadenkreuz in Third Person anzeigen",
+  "ThirdPerson_menu_flip_camera_side" : "Kameraausrichtung spiegeln",
+  "ThirdPerson_menu_flip_camera_side_desc" : "Taste um die horizontale Kameraausrichtung zu wechseln",
+  "ThirdPerson_menu_toggle_cam_mode" : "Kameramodus wechseln",
+  "ThirdPerson_menu_toggle_cam_mode_desc" : "Taste um zwischen First und Third Person zu wechseln"
+}
