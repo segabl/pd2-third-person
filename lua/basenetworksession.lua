@@ -24,36 +24,38 @@ local blocked_network_events = {
 }
 local send_to_peers_synched_original = BaseNetworkSession.send_to_peers_synched
 function BaseNetworkSession:send_to_peers_synched(...)
-  local params = { ... }
-  local func = params[1]
-  if alive(ThirdPerson.unit) then
-    if func == "sync_carry" or func == "sync_remove_carry" then
-      --ThirdPerson:log(...)
-      ThirdPerson.unit:movement():set_visual_carry(func == "sync_carry" and params[2])
-    elseif func == "sync_deployable_equipment" then
-      --ThirdPerson:log(...)
-      ThirdPerson.unit:movement():set_visual_deployable_equipment(params[2], params[3])
-    elseif not blocked_network_events[func] and params[2] == ThirdPerson.fp_unit then
-      if type(func) == "string" and not func:find("walk") then
+  if alive(ThirdPerson.fp_unit) then
+    local params = { ... }
+    local func = params[1]
+    if alive(ThirdPerson.unit) then
+      if func == "sync_carry" or func == "sync_remove_carry" then
         --ThirdPerson:log(...)
+        ThirdPerson.unit:movement():set_visual_carry(func == "sync_carry" and params[2])
+      elseif func == "sync_deployable_equipment" then
+        --ThirdPerson:log(...)
+        ThirdPerson.unit:movement():set_visual_deployable_equipment(params[2], params[3])
+      elseif not blocked_network_events[func] and params[2] == ThirdPerson.fp_unit then
+        if type(func) == "string" and not func:find("walk") then
+          --ThirdPerson:log(...)
+        end
+      
+        table.remove(params, 1)
+        params[1] = ThirdPerson.unit
+        
+        local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
+        if handler and handler[func] then
+          handler[func](handler, unpack(params))
+        end
+        
       end
-    
+    elseif not blocked_network_events[func] and ThirdPerson.fp_unit == params[2] then
+      -- everything that is sent to peers before the third person unit is spawned (= everything that happens during NetworkPeer:spawn_unit)
+      -- is collected to a table so it can be executed on the third person unit as soon as it's created
       table.remove(params, 1)
-      params[1] = ThirdPerson.unit
-      
-      local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
-      if handler and handler[func] then
-        handler[func](handler, unpack(params))
-      end
-      
+      table.remove(params, 1)
+      table.insert(ThirdPerson.delayed_events, { func = func, params = params })
+      --ThirdPerson:log("DELAYED", ...)
     end
-  elseif not blocked_network_events[func] and alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit == params[2] then
-    -- everything that is sent to peers before the third person unit is spawned (= everything that happens during NetworkPeer:spawn_unit)
-    -- is collected to a table so it can be executed on the third person unit as soon as it's created
-    table.remove(params, 1)
-    table.remove(params, 1)
-    table.insert(ThirdPerson.delayed_events, { func = func, params = params })
-    --ThirdPerson:log("DELAYED", ...)
   end
   return send_to_peers_synched_original(self, ...)
 end
