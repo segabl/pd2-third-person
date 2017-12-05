@@ -40,12 +40,6 @@ function BaseNetworkSession:send_to_peers_synched(...)
     
       table.remove(params, 1)
       params[1] = ThirdPerson.unit
-      if func == "reload_weapon" and #params == 1 then
-        -- Luffy pls, why u do dis?
-        table.insert(params, false)
-        table.insert(params, 1)
-      end
-      table.insert(params, ThirdPerson.fp_unit:network():peer():rpc())
       
       local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
       if handler and handler[func] then
@@ -58,7 +52,6 @@ function BaseNetworkSession:send_to_peers_synched(...)
     -- is collected to a table so it can be executed on the third person unit as soon as it's created
     table.remove(params, 1)
     table.remove(params, 1)
-    table.insert(params, ThirdPerson.fp_unit:network():peer():rpc())
     table.insert(ThirdPerson.delayed_events, { func = func, params = params })
     --ThirdPerson:log("DELAYED", ...)
   end
