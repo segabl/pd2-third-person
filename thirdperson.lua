@@ -177,7 +177,7 @@ if not ThirdPerson then
         ThirdPerson:log("WARNING: " .. weapon_name .. " does not exist! Replaced with " .. new_name)
         weapon_name = new_name
         blueprint_string = managers.weapon_factory:blueprint_to_string(weapon_name, managers.weapon_factory:get_default_blueprint_by_factory_id(weapon_name))
-        cosmetics_string = nil
+        cosmetics_string = "nil-1-0"
       end
       if weapon_name then
         self:add_unit_by_factory_name(weapon_name, true, true, blueprint_string, cosmetics_string)
