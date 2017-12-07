@@ -1,12 +1,15 @@
 ThirdPerson:load()
 
 Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInitThirdPerson", function(loc)
-  for _, filename in pairs(file.GetFiles(ThirdPerson.mod_path .. "loc/") or {}) do
-    local str = filename:match("^(.*).txt$")
-    if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
-      loc:load_localization_file(ThirdPerson.mod_path .. "loc/" .. filename)
-      loaded = true
-      break
+  if PD2KR then
+    loc:load_localization_file(ThirdPerson.mod_path .. "loc/korean.txt")
+  else
+    for _, filename in pairs(file.GetFiles(ThirdPerson.mod_path .. "loc/") or {}) do
+      local str = filename:match("^(.*).txt$")
+      if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
+        loc:load_localization_file(ThirdPerson.mod_path .. "loc/" .. filename)
+        break
+      end
     end
   end
   loc:load_localization_file(ThirdPerson.mod_path .. "loc/english.txt", false)
