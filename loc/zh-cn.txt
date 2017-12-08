@@ -1,0 +1,13 @@
+{
+  "ThirdPerson_menu_main_name" : "第三人称",
+  "ThirdPerson_menu_main_desc" : "控制第三人称视角设置",
+  "ThirdPerson_menu_cam_x" : "视角水平(x)位置",
+  "ThirdPerson_menu_cam_y" : "视角距离(y)位置",
+  "ThirdPerson_menu_cam_z" : "视角高度(z)位置",
+  "ThirdPerson_menu_first_person_on_steelsight" : "瞄准时激活第一人称",
+  "ThirdPerson_menu_third_person_crosshair" : "在第三人称展示十字准星",
+  "ThirdPerson_menu_flip_camera_side" : "翻转视角位置",
+  "ThirdPerson_menu_flip_camera_side_desc" : "键位绑定使其翻转水平视角的位置",
+  "ThirdPerson_menu_toggle_cam_mode" : "切换视角模式",
+  "ThirdPerson_menu_toggle_cam_mode_desc" : "键位绑定使其在第一人称和第三人称之间切换"
+}

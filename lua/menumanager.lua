@@ -4,11 +4,21 @@ Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInitThirdPerson
   if PD2KR then
     loc:load_localization_file(ThirdPerson.mod_path .. "loc/korean.txt")
   else
-    for _, filename in pairs(file.GetFiles(ThirdPerson.mod_path .. "loc/") or {}) do
-      local str = filename:match("^(.*).txt$")
-      if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
-        loc:load_localization_file(ThirdPerson.mod_path .. "loc/" .. filename)
-        break
+    local loaded = false
+    if Idstring("english"):key() ~= SystemInfo:language():key() then
+      for _, filename in pairs(file.GetFiles(ThirdPerson.mod_path .. "loc/") or {}) do
+        local str = filename:match("^(.*).txt$")
+        if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
+          loc:load_localization_file(ThirdPerson.mod_path .. "loc/" .. filename)
+          loaded = true
+          break
+        end
+      end
+    end
+    if not loaded then
+      local file = ThirdPerson.mod_path .. "loc/" .. BLT.Localization:get_language().language .. ".txt"
+      if io.file_is_readable(file) then
+        loc:load_localization_file(file)
       end
     end
   end
