@@ -22,6 +22,7 @@ if not ThirdPerson then
     ["lib/network/base/networkpeer"] = "lua/networkpeer.lua",
     ["lib/network/base/handlers/basenetworkhandler"] = "lua/basenetworkhandler.lua",
     ["lib/units/beings/player/playercamera"] = "lua/playercamera.lua",
+    ["lib/units/beings/player/states/playerdriving"] = "lua/playerdriving.lua",
     ["lib/units/beings/player/states/playerstandard"] = "lua/playerstandard.lua",
     ["lib/units/cameras/fpcameraplayerbase"] = "lua/fpcameraplayerbase.lua",
     ["lib/units/weapons/newnpcraycastweaponbase"] = "lua/newnpcraycastweaponbase.lua"
