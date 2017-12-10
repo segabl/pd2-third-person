@@ -11,8 +11,8 @@ function BaseNetworkSession:peer_by_unit_key(wanted_key)
   return peer_by_unit_key_original(self, wanted_key)
 end
 
--- everything that the local player sends to clients we will copy, change the unit to the third person unit and then send back to ourself
--- so it properly syncs the third person unit with the local players actions
+-- we will copy everything that the local player sends to clients, change the unit to the third person unit and then
+-- send it back to ourself so it properly syncs the third person unit with the local players actions
 local blocked_network_events = {
   say = true,
   unit_sound_play = true,

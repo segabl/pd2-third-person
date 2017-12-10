@@ -132,8 +132,8 @@ if not ThirdPerson then
       end
     end
     
-    self.unit:movement().set_need_assistance = function (self) end
-    self.unit:movement().set_need_revive = function (self) end
+    self.unit:movement().set_need_assistance = function () end
+    self.unit:movement().set_need_revive = function () end
     
     -- needs work, doesnt get all criminals heads
     self.unit:movement().set_head_visibility = function (self, visible)
