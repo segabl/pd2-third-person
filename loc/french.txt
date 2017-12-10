@@ -1,0 +1,13 @@
+{
+  "ThirdPerson_menu_main_name" : "Troisième personne",
+  "ThirdPerson_menu_main_desc" : "Contrôle les options de la caméra à la troisième personne",
+  "ThirdPerson_menu_cam_x" : "Axe horizontal de la caméra",
+  "ThirdPerson_menu_cam_y" : "Distance de la caméra",
+  "ThirdPerson_menu_cam_z" : "Hauteur de la caméra",
+  "ThirdPerson_menu_first_person_on_steelsight" : "Viser active la troisième personne",
+  "ThirdPerson_menu_third_person_crosshair" : "Montre un viseur en troisième personne",
+  "ThirdPerson_menu_flip_camera_side" : "Changer la caméra de coté",
+  "ThirdPerson_menu_flip_camera_side_desc" : "Raccourci clavier pour changer la position horizontale de la caméra",
+  "ThirdPerson_menu_toggle_cam_mode" : "Active le mode de caméra",
+  "ThirdPerson_menu_toggle_cam_mode_desc" : "Raccourci clavier pour changer entre la première et la troisième personne"
+}
