@@ -1,0 +1,13 @@
+{
+  "ThirdPerson_menu_main_name" : "Vista en Tercera Persona",
+  "ThirdPerson_menu_main_desc" : "Configuracion de la vista en Tercera Persona",
+  "ThirdPerson_menu_cam_x" : "Posición Horizontal de la Cámara",
+  "ThirdPerson_menu_cam_y" : "Distancia de la Cámara",
+  "ThirdPerson_menu_cam_z" : "Posición Vertical de la Cámara",
+  "ThirdPerson_menu_first_person_on_steelsight" : "Activar Cámara en Primera Persona al Apuntar",
+  "ThirdPerson_menu_third_person_crosshair" : "Mostrar una Mirilla en Primera Persona",
+  "ThirdPerson_menu_flip_camera_side" : "Invertir lado de la Cámara",
+  "ThirdPerson_menu_flip_camera_side_desc" : "Tecla Rapida para Invertir la Vista Horizontal de la Cámara",
+  "ThirdPerson_menu_toggle_cam_mode" : "Cambiar Modo de Cámara",
+  "ThirdPerson_menu_toggle_cam_mode_desc" : "Tecla Rapida para cambiar entre Vista de Primera y Tercera Persona"
+}
