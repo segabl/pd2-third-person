@@ -11,3 +11,12 @@ for func_name, orig_func in pairs(GroupAIStateBase) do
     end
   end
 end
+
+-- ignore all special objectives that have the third person unit as follow_unit
+local add_special_objective_original = GroupAIStateBase.add_special_objective
+function GroupAIStateBase:add_special_objective(id, objective_data, ...)
+  if objective_data and objective_data.objective and objective_data.objective.follow_unit == ThirdPerson.unit then
+    return
+  end
+  return add_special_objective_original(self, id, objective_data, ...)
+end
