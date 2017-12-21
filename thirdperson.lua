@@ -78,6 +78,9 @@ if not ThirdPerson then
       UnitBase.pre_destroy(self, unit)
     end
     
+    -- No contours
+    self.unit:contour().add = function () end
+    
     local look_vec_modified = Vector3()
     self.unit:movement().update = function (self, ...)
       HuskPlayerMovement.update(self, ...)
@@ -131,9 +134,6 @@ if not ThirdPerson then
         HuskPlayerMovement.set_position(self, alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:movement():m_pos() or pos)
       end
     end
-    
-    self.unit:movement().set_need_assistance = function () end
-    self.unit:movement().set_need_revive = function () end
     
     -- needs work, doesnt get all criminals heads
     self.unit:movement().set_head_visibility = function (self, visible)
@@ -203,8 +203,6 @@ if not ThirdPerson then
     self.unit:movement():set_character_anim_variables()
     self.unit:movement():update_armor()
     self.unit:movement():set_head_visibility(not ThirdPerson.settings.immersive_first_person)
-    
-    self.unit:contour():remove("teammate")
     
     -- Call missed events
     local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
