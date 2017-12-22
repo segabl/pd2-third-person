@@ -71,8 +71,13 @@ if not ThirdPerson then
       PlayerBase.pre_destroy(self, ...)
     end
 
+    local unit_base = self.unit:base()
+    local unit_movement = self.unit:movement()
+    local unit_inventory = self.unit:inventory()
+    local unit_sound = self.unit:sound()
+
     -- Hook some functions
-    self.unit:base().pre_destroy = function (self, unit)
+    unit_base.pre_destroy = function (self, unit)
       self._unit:movement():pre_destroy(unit)
       self._unit:inventory():pre_destroy(self._unit)
       UnitBase.pre_destroy(self, unit)
@@ -81,8 +86,13 @@ if not ThirdPerson then
     -- No contours
     self.unit:contour().add = function () end
     
+    -- No revive SO
+    unit_movement._register_revive_SO = function () end
+    unit_movement.set_need_assistance = function (self, need_assistance) self._need_assistance = need_assistance end
+    unit_movement.set_need_revive = function (self, need_revive) self._need_revive = need_revive end
+    
     local look_vec_modified = Vector3()
-    self.unit:movement().update = function (self, ...)
+    unit_movement.update = function (self, ...)
       HuskPlayerMovement.update(self, ...)
       if alive(ThirdPerson.fp_unit) then
         -- correct aiming direction so that lasers are approximately the same in first and third person
@@ -92,7 +102,7 @@ if not ThirdPerson then
       end
     end
     
-    self.unit:movement().sync_action_walk_nav_point = function (self, pos, speed, action)
+    unit_movement.sync_action_walk_nav_point = function (self, pos, speed, action)
       speed = speed or 1
       self._movement_path = self._movement_path or {}
       self._movement_history = self._movement_history or {}
@@ -126,7 +136,7 @@ if not ThirdPerson then
       end
     end
     
-    self.unit:movement().set_position = function (self, pos)
+    unit_movement.set_position = function (self, pos)
       if alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:camera():first_person() then
         self._unit:set_position(Vector3(0, 0, -10000))
       else
@@ -136,7 +146,7 @@ if not ThirdPerson then
     end
     
     -- needs work, doesnt get all criminals heads
-    self.unit:movement().set_head_visibility = function (self, visible)
+    unit_movement.set_head_visibility = function (self, visible)
       local char_name = managers.criminals.convert_old_to_new_character_workname(managers.criminals:character_name_by_unit(self._unit))
       local head_obj = char_name and self._unit:get_object(Idstring("g_head_" .. char_name))
       if head_obj then
@@ -149,7 +159,7 @@ if not ThirdPerson then
       self._unit:inventory():set_mask_visibility(visible and self._unit:inventory()._mask_visibility)
     end
     
-    self.unit:movement().update_armor = function (self)
+    unit_movement.update_armor = function (self)
       if alive(ThirdPerson.fp_unit) then
         local player_peer = ThirdPerson.fp_unit:network():peer()
         player_peer._unit = self._unit
@@ -159,12 +169,10 @@ if not ThirdPerson then
       end
     end
     
-    self.unit:inventory().set_mask_visibility = function (self, state)
-      HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state)
-    end
+    unit_inventory.set_mask_visibility = function (self, state) HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state) end
     
     -- adjust weapon switch to support custom weapons
-    self.unit:inventory()._perform_switch_equipped_weapon = function (self, weap_index, blueprint_string, cosmetics_string, peer)
+    unit_inventory._perform_switch_equipped_weapon = function (self, weap_index, blueprint_string, cosmetics_string, peer)
       local equipped = ThirdPerson.fp_unit:inventory():equipped_unit()
       local weapon_name = equipped and equipped:base()._factory_id and equipped:base()._factory_id .. "_npc" or "wpn_fps_ass_amcar_npc"
       cosmetics_string = cosmetics_string or self:cosmetics_string_from_peer(peer, weapon_name)
@@ -187,12 +195,12 @@ if not ThirdPerson then
     end
     
     -- We don't want our third person unit to make any sound, so we're plugging empty functions here
-    self.unit:sound().say = function () end
-    self.unit:sound().play = function () end
-    self.unit:sound()._play = function () end
+    unit_sound.say = function () end
+    unit_sound.play = function () end
+    unit_sound._play = function () end
     
     -- Setup some stuff
-    self.unit:inventory():set_melee_weapon(player_peer:melee_id(), true)
+    unit_inventory:set_melee_weapon(player_peer:melee_id(), true)
     
     self.unit:damage():run_sequence_simple(managers.blackmarket:character_sequence_by_character_id(player_peer:character_id(), player_peer:id()))
     local level_data = managers.job and managers.job:current_level_data()
@@ -200,9 +208,9 @@ if not ThirdPerson then
       self.unit:damage():run_sequence_simple(level_data.player_sequence)
     end
     
-    self.unit:movement():set_character_anim_variables()
-    self.unit:movement():update_armor()
-    self.unit:movement():set_head_visibility(not ThirdPerson.settings.immersive_first_person)
+    unit_movement:set_character_anim_variables()
+    unit_movement:update_armor()
+    unit_movement:set_head_visibility(not ThirdPerson.settings.immersive_first_person)
     
     -- Call missed events
     local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
