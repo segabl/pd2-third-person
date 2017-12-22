@@ -1,3 +1,7 @@
+if not ThirdPerson.settings.enabled then
+  return
+end
+
 function BaseNetworkSession:peer_by_unit(unit)
   return self:peer_by_unit_key(unit:key())
 end

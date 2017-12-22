@@ -1,3 +1,7 @@
+if not ThirdPerson.settings.enabled then
+  return
+end
+
 local _start_action_steelsight_original = PlayerStandard._start_action_steelsight
 function PlayerStandard:_start_action_steelsight(...)
   _start_action_steelsight_original(self, ...)

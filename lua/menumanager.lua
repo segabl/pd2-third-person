@@ -48,6 +48,23 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     end
   end
   
+  MenuHelper:AddToggle({
+    id = "enabled",
+    title = "ThirdPerson_menu_third_person_enabled",
+    desc = "ThirdPerson_menu_third_person_enabled_desc",
+    callback = "ThirdPerson_toggle",
+    value = ThirdPerson.settings.enabled,
+    menu_id = menu_id_main,
+    priority = 101
+  })
+  
+  MenuHelper:AddDivider({
+    id = "divider1",
+    size = 24,
+    menu_id = menu_id_main,
+    priority = 100
+  })
+  
   MenuHelper:AddSlider({
     id = "cam_x",
     title = "ThirdPerson_menu_cam_x",
@@ -86,7 +103,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
   })
   
   MenuHelper:AddDivider({
-    id = "divider1",
+    id = "divider2",
     size = 24,
     menu_id = menu_id_main,
     priority = 90
@@ -110,7 +127,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
   })
   
   MenuHelper:AddDivider({
-    id = "divider1",
+    id = "divider3",
     size = 24,
     menu_id = menu_id_main,
     priority = 80
@@ -123,7 +140,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
   end
   
   BLT.Keybinds:register_keybind(mod, { id = "toggle_cam_mode", allow_game = true, show_in_menu = false, callback = function()
-    if alive(ThirdPerson.fp_unit) then
+    if alive(ThirdPerson.unit) and alive(ThirdPerson.fp_unit) then
       ThirdPerson.fp_unit:camera():toggle_third_person()
     end
   end })
@@ -142,7 +159,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
   })
   
   BLT.Keybinds:register_keybind(mod, { id = "flip_camera_side", allow_game = true, show_in_menu = false, callback = function()
-    if alive(ThirdPerson.fp_unit) then
+    if alive(ThirdPerson.unit) and alive(ThirdPerson.fp_unit) then
       ThirdPerson.settings.cam_x = -ThirdPerson.settings.cam_x
       ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()
     end

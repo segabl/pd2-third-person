@@ -1,3 +1,7 @@
+if not ThirdPerson.settings.enabled then
+  return
+end
+
 local set_position_original = FPCameraPlayerBase.set_position
 function FPCameraPlayerBase:set_position(...)
   local cam = alive(self._parent_unit) and self._parent_unit == ThirdPerson.fp_unit and ThirdPerson.fp_unit:camera()

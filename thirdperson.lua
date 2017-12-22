@@ -7,6 +7,7 @@ if not ThirdPerson then
   ThirdPerson.fp_unit = nil
   ThirdPerson.delayed_events = {}
   ThirdPerson.settings = {
+    enabled = true,
     cam_x = 80,
     cam_y = 120,
     cam_z = 15,

@@ -1,3 +1,7 @@
+if not ThirdPerson.settings.enabled then
+  return
+end
+
 -- Change the fire functions to always fire without impact since we already have bullet impact from the first person unit
 local fire_blank_original = NewNPCRaycastWeaponBase.fire_blank
 function NewNPCRaycastWeaponBase:fire_blank(direction, impact, ...)

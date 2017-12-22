@@ -1,3 +1,7 @@
+if not ThirdPerson.settings.enabled then
+  return
+end
+
 -- if the sender isn't set, assume it is sent by the local peer
 -- so we can use this to call UnitNetworkHandler methods without a sender
 local _verify_sender_original = BaseNetworkHandler._verify_sender

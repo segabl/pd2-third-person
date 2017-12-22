@@ -1,3 +1,7 @@
+if not ThirdPerson.settings.enabled then
+  return
+end
+
 local init_original = PlayerCamera.init
 function PlayerCamera:init(...)
   init_original(self, ...)
@@ -83,11 +87,13 @@ end
 function PlayerCamera:set_first_person()
   self._third_person = false
   self._crosshair:set_visible(false)
-  ThirdPerson.unit:movement():set_position(Vector3())
+  if alive(ThirdPerson.unit) then
+    ThirdPerson.unit:movement():set_position(Vector3())
+  end
 end
 
 function PlayerCamera:set_third_person()
-  if not self._toggled_fp then
+  if alive(ThirdPerson.unit) and not self._toggled_fp then
     self._third_person = true
     self._crosshair:set_visible(ThirdPerson.settings.third_person_crosshair)
     ThirdPerson.unit:movement():set_position(Vector3())
