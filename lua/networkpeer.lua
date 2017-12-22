@@ -5,7 +5,7 @@ function NetworkPeer:set_unit(unit, ...)
     ThirdPerson.fp_unit = unit
   end
   set_unit_original(self, unit, ...)
-  if ThirdPerson.fp_unit == unit then
+  if ThirdPerson.fp_unit == unit and Utils:IsInGameState() then
     ThirdPerson:setup_unit(unit)
   end
 end
