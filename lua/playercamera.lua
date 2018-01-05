@@ -22,17 +22,22 @@ function PlayerCamera:init(...)
 end
 
 function PlayerCamera:refresh_tp_cam_settings()
-  self._tp_cam_dir = Vector3(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
-  self._tp_cam_dis = mvector3.length(self._tp_cam_dir)
-  if self._tp_cam_dis > 0 then
-    mvector3.multiply(self._tp_cam_dir, 1 / self._tp_cam_dis)
+  if not ThirdPerson.settings.immersive_first_person then
+    self._tp_cam_dir = Vector3(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
+    self._tp_cam_dis = mvector3.length(self._tp_cam_dir)
+    if self._tp_cam_dis > 0 then
+      mvector3.multiply(self._tp_cam_dir, 1 / self._tp_cam_dis)
+    end
   end
   self._crosshair:set_visible(self:third_person() and ThirdPerson.settings.third_person_crosshair)
 end
 
 local mvec = Vector3()
 function PlayerCamera:check_set_third_person_position(pos, rot)
-  if self:third_person() then
+  if self:first_person() then
+    return
+  end
+  if not ThirdPerson.settings.immersive_first_person then
     -- set cam position
     mvector3.set(mvec, self._tp_cam_dir)
     mvector3.rotate_with(mvec, rot)
@@ -54,8 +59,7 @@ function PlayerCamera:check_set_third_person_position(pos, rot)
         self._crosshair:set_image("units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_green_il")
       end
     end
-  end
-  if ThirdPerson.settings.immersive_first_person and alive(ThirdPerson.unit) then
+  elseif alive(ThirdPerson.unit) then
     local pos = ThirdPerson.unit:movement():m_head_pos()
     local rot = ThirdPerson.unit:movement():m_head_rot()
     self._camera_controller:set_camera(pos + rot:y() * 10 + rot:z() * 10)
