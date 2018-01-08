@@ -1,6 +1,8 @@
 {
   "ThirdPerson_menu_main_name" : "Vista en Tercera Persona",
   "ThirdPerson_menu_main_desc" : "Configuracion de la vista en Tercera Persona",
+  "ThirdPerson_menu_third_person_enabled" : "Activado",
+  "ThirdPerson_menu_third_person_enabled_desc" : "Activa o Desactiva el Mod (Requiere Recarga)",
   "ThirdPerson_menu_cam_x" : "Posición Horizontal de la Cámara",
   "ThirdPerson_menu_cam_y" : "Distancia de la Cámara",
   "ThirdPerson_menu_cam_z" : "Posición Vertical de la Cámara",
