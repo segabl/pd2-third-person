@@ -45,24 +45,24 @@ function PlayerCamera:check_set_third_person_position(pos, rot)
     mvector3.multiply(mvec, ray and ray.distance - 20 or self._tp_cam_dis)
     mvector3.add(mvec, pos)
     self._camera_controller:set_camera(mvec)
-    -- set crosshair
-    if self._crosshair:visible() then
-      mvector3.set(mvec, self:forward())
-      ray = World:raycast("ray", self:position(), self:position() + mvec * 10000, "slot_mask", self._slot_mask_all)
-      mvector3.multiply(mvec, ray and ray.distance or 10000)
-      mvector3.add(mvec, self:position())
-      mvector3.set(mvec, managers.hud._workspace:world_to_screen(self._camera_object, mvec))
-      self._crosshair:set_center(mvec.x, mvec.y)
-      if ray and ray.unit and managers.enemy:is_enemy(ray.unit) then
-        self._crosshair:set_image("units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_yellow_il")
-      else
-        self._crosshair:set_image("units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_green_il")
-      end
-    end
   elseif alive(ThirdPerson.unit) then
     local pos = ThirdPerson.unit:movement():m_head_pos()
     local rot = ThirdPerson.unit:movement():m_head_rot()
     self._camera_controller:set_camera(pos + rot:y() * 10 + rot:z() * 10)
+  end
+  -- set crosshair
+  if self._crosshair:visible() then
+    mvector3.set(mvec, self:forward())
+    ray = World:raycast("ray", self:position(), self:position() + mvec * 10000, "slot_mask", self._slot_mask_all)
+    mvector3.multiply(mvec, ray and ray.distance or 10000)
+    mvector3.add(mvec, self:position())
+    mvector3.set(mvec, managers.hud._workspace:world_to_screen(self._camera_object, mvec))
+    self._crosshair:set_center(mvec.x, mvec.y)
+    if ray and ray.unit and managers.enemy:is_enemy(ray.unit) then
+      self._crosshair:set_image("units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_yellow_il")
+    else
+      self._crosshair:set_image("units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_green_il")
+    end
   end
 end
 

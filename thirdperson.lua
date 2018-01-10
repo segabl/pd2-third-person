@@ -146,13 +146,20 @@ if not ThirdPerson then
       end
     end
     
-    -- needs work, doesnt get all criminals heads
     unit_movement.set_head_visibility = function (self, visible)
-      local char_name = managers.criminals.convert_old_to_new_character_workname(managers.criminals:character_name_by_unit(self._unit))
-      local head_obj = char_name and self._unit:get_object(Idstring("g_head_" .. char_name))
-      if head_obj then
-        head_obj:set_visibility(visible)
+      local char_name = managers.criminals:character_name_by_unit(self._unit)
+      local new_char_name = managers.criminals.convert_old_to_new_character_workname(char_name)
+      -- Disable head and hair objects
+      local try_names = { "g_head_%s", "g_%s_mask_off", "g_%s_mask_on", "g_%s_hair" }
+      local obj
+      for _, v in ipairs(try_names) do
+        obj = char_name and self._unit:get_object(Idstring(v:format(char_name))) or new_char_name and self._unit:get_object(Idstring(v:format(new_char_name)))
+        if obj then
+          ThirdPerson:log("Disabled " .. v)
+          obj:set_visibility(visible)
+        end
       end
+      -- Disable neck armor object
       local neck_armor_obj = self._unit:get_object(Idstring("g_vest_neck"))
       if neck_armor_obj then
         neck_armor_obj:set_visibility(visible and neck_armor_obj:visibility())
