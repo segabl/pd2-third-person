@@ -8,6 +8,7 @@ if not ThirdPerson then
   ThirdPerson.delayed_events = {}
   ThirdPerson.settings = {
     enabled = true,
+    start_in_tp = true,
     cam_x = 80,
     cam_y = 120,
     cam_z = 15,
@@ -231,7 +232,9 @@ if not ThirdPerson then
       self.delayed_events = {}
     end
     
-    player:camera():set_third_person()
+    if self.settings.start_in_tp then
+      player:camera():set_third_person()
+    end
     
     -- Unregister from groupai manager so it doesnt count as an actual criminal
     managers.groupai:state():unregister_criminal(self.unit)

@@ -3,6 +3,8 @@
   "ThirdPerson_menu_main_desc" : "Third Person Kamera Einstellungen anpassen",
   "ThirdPerson_menu_third_person_enabled" : "Aktiviert",
   "ThirdPerson_menu_third_person_enabled_desc" : "Aktiviert oder deaktiviert Mod (erfordert erneutes Laden)",
+  "ThirdPerson_menu_third_person_start_in_tp" : "In Third Person starten",
+  "ThirdPerson_menu_third_person_start_in_tp_desc" : "Zu Heist Beginn sofort zu Third Person Ansicht wechseln",
   "ThirdPerson_menu_cam_x" : "Kamera Horizontale",
   "ThirdPerson_menu_cam_y" : "Kamera Abstand",
   "ThirdPerson_menu_cam_z" : "Kamera Höhe",

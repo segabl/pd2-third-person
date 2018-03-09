@@ -55,6 +55,23 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     callback = "ThirdPerson_toggle",
     value = ThirdPerson.settings.enabled,
     menu_id = menu_id_main,
+    priority = 111
+  })
+  
+  MenuHelper:AddDivider({
+    id = "divider1",
+    size = 24,
+    menu_id = menu_id_main,
+    priority = 110
+  })
+  
+  MenuHelper:AddToggle({
+    id = "start_in_tp",
+    title = "ThirdPerson_menu_third_person_start_in_tp",
+    desc = "ThirdPerson_menu_third_person_start_in_tp_desc",
+    callback = "ThirdPerson_toggle",
+    value = ThirdPerson.settings.start_in_tp,
+    menu_id = menu_id_main,
     priority = 101
   })
   
