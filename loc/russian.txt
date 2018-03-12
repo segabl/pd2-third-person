@@ -3,6 +3,8 @@
   "ThirdPerson_menu_main_desc" : "Настройки камеры от 3-го лица",
   "ThirdPerson_menu_third_person_enabled" : "Включено",
   "ThirdPerson_menu_third_person_enabled_desc" : "Включает или отключает мод (требуется перезапуск)",
+  "ThirdPerson_menu_third_person_start_in_tp" : "Начать в 3-ем лице",
+  "ThirdPerson_menu_third_person_start_in_tp_desc" : "Принудительно включает 3-е лицо при старте ограбления",
   "ThirdPerson_menu_cam_x" : "Камера по горизонтали",
   "ThirdPerson_menu_cam_y" : "Дистанция камеры",
   "ThirdPerson_menu_cam_z" : "Высота камеры",
