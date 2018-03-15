@@ -1,7 +1,16 @@
 ThirdPerson:load()
 
 Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInitThirdPerson", function(loc)
-  if PD2KR then
+  local custom_language
+  for _, mod in pairs(BLT and BLT.Mods:Mods() or {}) do
+		if mod:GetName() == "PAYDAY 2 THAI LANGUAGE Mod" and mod:IsEnabled() then
+            custom_language = "thai"
+            break
+        end  
+  end
+  if custom_language then
+    loc:load_localization_file(ThirdPerson.mod_path .. "loc/" .. custom_language ..".txt")
+  elseif PD2KR then
     loc:load_localization_file(ThirdPerson.mod_path .. "loc/korean.txt")
   else
     local loaded = false
