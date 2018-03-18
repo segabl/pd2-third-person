@@ -234,6 +234,8 @@ if not ThirdPerson then
     
     if self.settings.start_in_tp then
       player:camera():set_third_person()
+    else
+      player:camera()._toggled_fp = true
     end
     
     -- Unregister from groupai manager so it doesnt count as an actual criminal
