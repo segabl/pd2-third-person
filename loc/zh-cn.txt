@@ -5,6 +5,8 @@
   "ThirdPerson_menu_third_person_enabled_desc" : "启用或禁用MOD(需要重新加载)",
   "ThirdPerson_menu_third_person_start_in_tp" : "从第三人称开始劫案",
   "ThirdPerson_menu_third_person_start_in_tp_desc" : "在劫案开始时立即切换到第三人称",
+  "ThirdPerson_menu_third_person_immersive_first_person" : "Immersive first person mode",
+  "ThirdPerson_menu_third_person_immersive_first_person_desc" : "Switch camera mode to immersive first person instead of third person",
   "ThirdPerson_menu_cam_x" : "视角水平(X)位置",
   "ThirdPerson_menu_cam_y" : "视角距离(Y)位置",
   "ThirdPerson_menu_cam_z" : "视角高度(Z)位置",

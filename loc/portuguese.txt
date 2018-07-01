@@ -5,6 +5,8 @@
   "ThirdPerson_menu_third_person_enabled_desc" : "Ativa ou desativa o mod (Necessita reiniciar)",
   "ThirdPerson_menu_third_person_start_in_tp" : "Iniciar em terceira pessoa",
   "ThirdPerson_menu_third_person_start_in_tp_desc" : "Muda para terceira pessoa quando o heist iniciar",
+  "ThirdPerson_menu_third_person_immersive_first_person" : "Immersive first person mode",
+  "ThirdPerson_menu_third_person_immersive_first_person_desc" : "Switch camera mode to immersive first person instead of third person",
   "ThirdPerson_menu_cam_x" : "Câmera horizontal",
   "ThirdPerson_menu_cam_y" : "Distância da câmera",
   "ThirdPerson_menu_cam_z" : "Altura da câmera",

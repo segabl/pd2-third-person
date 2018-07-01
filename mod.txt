@@ -1,6 +1,6 @@
 {
   "name" : "Third Person",
-  "description" : "Enables third person mode (still work in progress)",
+  "description" : "Enables third person mode",
   "author" : "Shiny Hoppip",
   "blt_version" : 2,
   "color" : "0.043 0.808 0.6",

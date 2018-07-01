@@ -5,6 +5,8 @@
   "ThirdPerson_menu_third_person_enabled_desc" : "เปิดใช้งานหรือปิดใช้งาน mod นี้ (จำเป็นต้องรีโหลด)",
   "ThirdPerson_menu_third_person_start_in_tp" : "เริ่มต้นในมุมมองบุคคลที่ 3",
   "ThirdPerson_menu_third_person_start_in_tp_desc" : "เริ่มมุมมองบุคคลที่ 3 ทันทีหลังจากที่เริ่มเล่นด่าน",
+  "ThirdPerson_menu_third_person_immersive_first_person" : "Immersive first person mode",
+  "ThirdPerson_menu_third_person_immersive_first_person_desc" : "Switch camera mode to immersive first person instead of third person",
   "ThirdPerson_menu_cam_x" : "ปรับระยะกล้องแนวนอน",
   "ThirdPerson_menu_cam_y" : "ปรับระยะห่างของกล้อง",
   "ThirdPerson_menu_cam_z" : "ปรับความสูงของกล้อง",

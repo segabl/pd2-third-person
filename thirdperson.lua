@@ -150,13 +150,12 @@ if not ThirdPerson then
     unit_movement.set_head_visibility = function (self, visible)
       local char_name = managers.criminals:character_name_by_unit(self._unit)
       local new_char_name = managers.criminals.convert_old_to_new_character_workname(char_name)
-      -- Disable head and hair objects
-      local try_names = { "g_head_%s", "g_%s_mask_off", "g_%s_mask_on", "g_%s_hair" }
+      -- Disable head and hair objects - many thanks for being inconsistent with naming your objects, Overkill
+      local try_names = { "g_head", "g_head_%s", "g_%s_mask_off", "g_%s_mask_on", "g_hair", "g_%s_hair", "g_hair_mask_on", "g_hair_mask_off" }
       local obj
       for _, v in ipairs(try_names) do
         obj = char_name and self._unit:get_object(Idstring(v:format(char_name))) or new_char_name and self._unit:get_object(Idstring(v:format(new_char_name)))
         if obj then
-          ThirdPerson:log("Disabled " .. v)
           obj:set_visibility(visible)
         end
       end

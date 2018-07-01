@@ -14,8 +14,8 @@ function PlayerCamera:init(...)
     name = "third_person_crosshair",
     texture = "units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_green_il",
     blend_mode = "add",
-    w = 24,
-    h = 24,
+    w = 32,
+    h = 32,
     visible = ThirdPerson.settings.third_person_crosshair
   })
   self:refresh_tp_cam_settings()

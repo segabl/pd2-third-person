@@ -66,14 +66,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     menu_id = menu_id_main,
     priority = 111
   })
-  
-  MenuHelper:AddDivider({
-    id = "divider1",
-    size = 24,
-    menu_id = menu_id_main,
-    priority = 110
-  })
-  
+
   MenuHelper:AddToggle({
     id = "start_in_tp",
     title = "ThirdPerson_menu_third_person_start_in_tp",
@@ -84,11 +77,21 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     priority = 101
   })
   
+  MenuHelper:AddToggle({
+    id = "immersive_first_person",
+    title = "ThirdPerson_menu_third_person_immersive_first_person",
+    desc = "ThirdPerson_menu_third_person_immersive_first_person_desc",
+    callback = "ThirdPerson_toggle",
+    value = ThirdPerson.settings.immersive_first_person,
+    menu_id = menu_id_main,
+    priority = 99
+  })
+  
   MenuHelper:AddDivider({
-    id = "divider1",
+    id = "divider2",
     size = 24,
     menu_id = menu_id_main,
-    priority = 100
+    priority = 98
   })
   
   MenuHelper:AddSlider({
@@ -101,7 +104,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     step = 1,
     show_value = true,
     menu_id = menu_id_main,
-    priority = 99
+    priority = 97
   })
   MenuHelper:AddSlider({
     id = "cam_y",
@@ -113,7 +116,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     step = 1,
     show_value = true,
     menu_id = menu_id_main,
-    priority = 98
+    priority = 96
   })
   MenuHelper:AddSlider({
     id = "cam_z",
@@ -125,11 +128,11 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     step = 1,
     show_value = true,
     menu_id = menu_id_main,
-    priority = 97
+    priority = 95
   })
   
   MenuHelper:AddDivider({
-    id = "divider2",
+    id = "divider3",
     size = 24,
     menu_id = menu_id_main,
     priority = 90
