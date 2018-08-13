@@ -47,6 +47,10 @@ if not ThirdPerson then
   }
   function ThirdPerson:setup_unit(unit)
     local player = unit or managers.player:local_player()
+    if not player then
+      ThirdPerson:log("ERROR: Could not find player unit!")
+      return
+    end
     local player_peer = player:network():peer()
     local player_movement = player:movement()
     local pos = player_movement:m_pos()
