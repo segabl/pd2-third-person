@@ -43,8 +43,9 @@ if not ThirdPerson then
   end
   
   local husk_names = {
-    wild = "units/pd2_dlc_wild/characters/npc_criminals_wild_1/player_criminal_wild_husk" -- thanks Overkill >.<
-  }
+    wild = "units/pd2_dlc_wild/characters/npc_criminals_wild_1/player_criminal_wild_husk",
+    joy = "units/pd2_dlc_joy/characters/npc_criminals_joy_1/player_criminal_joy_husk"
+  } -- thanks Overkill >.<
   function ThirdPerson:setup_unit(unit)
     local player = unit or managers.player:local_player()
     if not player then
