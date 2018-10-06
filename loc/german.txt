@@ -11,6 +11,7 @@
   "ThirdPerson_menu_cam_y" : "Kamera Abstand",
   "ThirdPerson_menu_cam_z" : "Kamera Höhe",
   "ThirdPerson_menu_first_person_on_steelsight" : "Benutzen des Visiers aktiviert First Person",
+  "ThirdPerson_menu_first_person_on_downed" : "Zu Boden gehen aktiviert First Person",
   "ThirdPerson_menu_third_person_crosshair" : "Ein Fadenkreuz in Third Person anzeigen",
   "ThirdPerson_menu_flip_camera_side" : "Kameraausrichtung spiegeln",
   "ThirdPerson_menu_flip_camera_side_desc" : "Taste um die horizontale Kameraausrichtung zu wechseln",

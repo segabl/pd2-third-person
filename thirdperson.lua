@@ -13,6 +13,7 @@ if not ThirdPerson then
     cam_y = 120,
     cam_z = 15,
     first_person_on_steelsight = true,
+    first_person_on_downed = false,
     third_person_crosshair = false,
     immersive_first_person = false
   }
@@ -24,6 +25,7 @@ if not ThirdPerson then
     ["lib/network/base/networkpeer"] = "lua/networkpeer.lua",
     ["lib/network/base/handlers/basenetworkhandler"] = "lua/basenetworkhandler.lua",
     ["lib/units/beings/player/playercamera"] = "lua/playercamera.lua",
+    ["lib/units/beings/player/states/playerbleedout"] = "lua/playerbleedout.lua",
     ["lib/units/beings/player/states/playerdriving"] = "lua/playerdriving.lua",
     ["lib/units/beings/player/states/playerstandard"] = "lua/playerstandard.lua",
     ["lib/units/cameras/fpcameraplayerbase"] = "lua/fpcameraplayerbase.lua",

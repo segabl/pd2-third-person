@@ -147,12 +147,20 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     priority = 89
   })
   MenuHelper:AddToggle({
+    id = "first_person_on_downed",
+    title = "ThirdPerson_menu_first_person_on_downed",
+    callback = "ThirdPerson_toggle",
+    value = ThirdPerson.settings.first_person_on_downed,
+    menu_id = menu_id_main,
+    priority = 88
+  })
+  MenuHelper:AddToggle({
     id = "third_person_crosshair",
     title = "ThirdPerson_menu_third_person_crosshair",
     callback = "ThirdPerson_toggle",
     value = ThirdPerson.settings.third_person_crosshair,
     menu_id = menu_id_main,
-    priority = 88
+    priority = 87
   })
   
   MenuHelper:AddDivider({

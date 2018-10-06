@@ -11,6 +11,7 @@
   "ThirdPerson_menu_cam_y" : "Camera distance",
   "ThirdPerson_menu_cam_z" : "Camera height",
   "ThirdPerson_menu_first_person_on_steelsight" : "Aiming down sights activates first person",
+  "ThirdPerson_menu_first_person_on_downed" : "Going down activates first person",
   "ThirdPerson_menu_third_person_crosshair" : "Show a crosshair in third person",
   "ThirdPerson_menu_flip_camera_side" : "Flip camera side",
   "ThirdPerson_menu_flip_camera_side_desc" : "Keybind to flip horizontal camera position",
