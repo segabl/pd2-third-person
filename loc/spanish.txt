@@ -11,6 +11,7 @@
   "ThirdPerson_menu_cam_y" : "Distancia de la Cámara",
   "ThirdPerson_menu_cam_z" : "Posición Vertical de la Cámara",
   "ThirdPerson_menu_first_person_on_steelsight" : "Activar Cámara en Primera Persona al Apuntar",
+  "ThirdPerson_menu_first_person_on_downed" : "Going down activates first person",
   "ThirdPerson_menu_third_person_crosshair" : "Mostrar una Mirilla en Primera Persona",
   "ThirdPerson_menu_flip_camera_side" : "Invertir lado de la Cámara",
   "ThirdPerson_menu_flip_camera_side_desc" : "Tecla Rapida para Invertir la Vista Horizontal de la Cámara",

@@ -11,6 +11,7 @@
   "ThirdPerson_menu_cam_y" : "Distância da câmera",
   "ThirdPerson_menu_cam_z" : "Altura da câmera",
   "ThirdPerson_menu_first_person_on_steelsight" : "Usar a mira de aço ativa a primeira pessoa",
+  "ThirdPerson_menu_first_person_on_downed" : "Going down activates first person",
   "ThirdPerson_menu_third_person_crosshair" : "Mostrar uma mira em terceira pessoa",
   "ThirdPerson_menu_flip_camera_side" : "Virar lado da câmera",
   "ThirdPerson_menu_flip_camera_side_desc" : "Atalho de teclado para virar a posição horizontal da câmera",

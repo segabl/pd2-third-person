@@ -13,6 +13,7 @@ if not ThirdPerson then
     cam_y = 120,
     cam_z = 15,
     first_person_on_steelsight = true,
+    first_person_on_downed = false,
     third_person_crosshair = false,
     immersive_first_person = false
   }
@@ -24,6 +25,7 @@ if not ThirdPerson then
     ["lib/network/base/networkpeer"] = "lua/networkpeer.lua",
     ["lib/network/base/handlers/basenetworkhandler"] = "lua/basenetworkhandler.lua",
     ["lib/units/beings/player/playercamera"] = "lua/playercamera.lua",
+    ["lib/units/beings/player/states/playerbleedout"] = "lua/playerbleedout.lua",
     ["lib/units/beings/player/states/playerdriving"] = "lua/playerdriving.lua",
     ["lib/units/beings/player/states/playerstandard"] = "lua/playerstandard.lua",
     ["lib/units/cameras/fpcameraplayerbase"] = "lua/fpcameraplayerbase.lua",
@@ -43,10 +45,15 @@ if not ThirdPerson then
   end
   
   local husk_names = {
-    wild = "units/pd2_dlc_wild/characters/npc_criminals_wild_1/player_criminal_wild_husk" -- thanks Overkill >.<
-  }
+    wild = "units/pd2_dlc_wild/characters/npc_criminals_wild_1/player_criminal_wild_husk",
+    joy = "units/pd2_dlc_joy/characters/npc_criminals_joy_1/player_criminal_joy_husk"
+  } -- thanks Overkill >.<
   function ThirdPerson:setup_unit(unit)
     local player = unit or managers.player:local_player()
+    if not player then
+      ThirdPerson:log("ERROR: Could not find player unit!")
+      return
+    end
     local player_peer = player:network():peer()
     local player_movement = player:movement()
     local pos = player_movement:m_pos()

@@ -25,6 +25,7 @@ local blocked_network_events = {
   criminal_hurt = true,
   set_look_dir = true,
   set_unit = true,
+  sync_unit_event_id_16 = true
 }
 local send_to_peers_synched_original = BaseNetworkSession.send_to_peers_synched
 function BaseNetworkSession:send_to_peers_synched(...)

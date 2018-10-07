@@ -11,6 +11,7 @@
   "ThirdPerson_menu_cam_y" : "카메라 거리",
   "ThirdPerson_menu_cam_z" : "카메라 높이",
   "ThirdPerson_menu_first_person_on_steelsight" : "조준시 1인칭",
+  "ThirdPerson_menu_first_person_on_downed" : "Going down activates first person",
   "ThirdPerson_menu_third_person_crosshair" : "3인칭에서 크로스헤어를 봅니다.",
   "ThirdPerson_menu_flip_camera_side" : "카메라 좌/우 변경",
   "ThirdPerson_menu_flip_camera_side_desc" : "카메라 좌/우를 변경합니다.",
