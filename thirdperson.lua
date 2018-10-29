@@ -17,20 +17,6 @@ if not ThirdPerson then
     third_person_crosshair = false,
     immersive_first_person = false
   }
-  ThirdPerson.hooks = {
-    ["lib/managers/criminalsmanager"] = "lua/criminalsmanager.lua",
-    ["lib/managers/menumanager"] = "lua/menumanager.lua",
-    ["lib/managers/group_ai_states/groupaistatebase"] = "lua/groupaistatebase.lua",
-    ["lib/network/base/basenetworksession"] = "lua/basenetworksession.lua",
-    ["lib/network/base/networkpeer"] = "lua/networkpeer.lua",
-    ["lib/network/base/handlers/basenetworkhandler"] = "lua/basenetworkhandler.lua",
-    ["lib/units/beings/player/playercamera"] = "lua/playercamera.lua",
-    ["lib/units/beings/player/states/playerbleedout"] = "lua/playerbleedout.lua",
-    ["lib/units/beings/player/states/playerdriving"] = "lua/playerdriving.lua",
-    ["lib/units/beings/player/states/playerstandard"] = "lua/playerstandard.lua",
-    ["lib/units/cameras/fpcameraplayerbase"] = "lua/fpcameraplayerbase.lua",
-    ["lib/units/weapons/newnpcraycastweaponbase"] = "lua/newnpcraycastweaponbase.lua"
-  }
   
   function ThirdPerson:log(...)
     if DebugConsole and con then
@@ -269,6 +255,11 @@ if not ThirdPerson then
 
 end
 
-if ThirdPerson.hooks[RequiredScript] then
-  dofile(ThirdPerson.mod_path .. ThirdPerson.hooks[RequiredScript])
+if RequiredScript then
+
+  local fname = ThirdPerson.mod_path .. RequiredScript:gsub(".+/(.+)", "lua/%1.lua")
+  if io.file_is_readable(fname) then
+    dofile(fname)
+  end
+
 end
