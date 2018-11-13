@@ -5,7 +5,7 @@
   "blt_version" : 2,
   "color" : "0.043 0.808 0.6",
   "image" : "mod.png",
-  "version" : "0.9",
+  "version" : "1",
   "updates" : [ { "identifier" : "third_person" } ],
   "hooks" : [
     { "hook_id" : "lib/units/beings/player/playercamera", "script_path" : "thirdperson.lua" },
