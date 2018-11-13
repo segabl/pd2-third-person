@@ -57,6 +57,7 @@ if not ThirdPerson then
     
     self.fp_unit = player
     self.unit = alive(self.unit) and self.unit or World:spawn_unit(unit_name_ids, pos, rot)
+    Network:detach_unit(self.unit)
     
     -- The third person unit should be destroyed whenever the first person unit is destroyed
     player:base().pre_destroy = function (self, ...)
@@ -204,14 +205,15 @@ if not ThirdPerson then
     unit_inventory:set_melee_weapon(player_peer:melee_id(), true)
     
     self.unit:damage():run_sequence_simple(managers.blackmarket:character_sequence_by_character_id(player_peer:character_id(), player_peer:id()))
-    local level_data = managers.job and managers.job:current_level_data()
-    if level_data and level_data.player_sequence then
-      self.unit:damage():run_sequence_simple(level_data.player_sequence)
-    end
     
     unit_movement:set_character_anim_variables()
     unit_movement:update_armor()
     unit_movement:set_head_visibility(not ThirdPerson.settings.immersive_first_person)
+    
+    local level_data = managers.job and managers.job:current_level_data()
+    if level_data and level_data.player_sequence then
+      self.unit:damage():run_sequence_simple(level_data.player_sequence)
+    end
     
     -- Call missed events
     local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
