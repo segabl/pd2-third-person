@@ -7,3 +7,4 @@ This is might not play well with character, weapon or other related mods and cou
 ## Known issues
 - Animations are incorrect on ziplines and during jumping
 - Aiming in third person is difficult since the aim point is not the screen center
+- Activating bipods does not work in third person
