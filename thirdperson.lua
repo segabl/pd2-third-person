@@ -160,15 +160,12 @@ if not ThirdPerson then
       end
       self._unit:inventory():set_mask_visibility(visible and self._unit:inventory()._mask_visibility)
     end
-    
+
     unit_movement.update_armor = function (self)
-      if alive(ThirdPerson.fp_unit) then
-        local player_peer = ThirdPerson.fp_unit:network():peer()
-        player_peer._unit = self._unit
-        player_peer._equipped_armor_id = "level_1"
-        player_peer:_update_equipped_armor()
-        player_peer._unit = ThirdPerson.fp_unit
-      end
+      local player_peer = managers.network:session():local_peer()
+      local complete_outfit = player_peer:blackmarket_outfit()
+      local outfit_loaded = player_peer:is_outfit_loaded()
+      managers.criminals.set_character_visual_state(self._unit, player_peer:character(), false, player_peer._visual_seed, nil and outfit_loaded and complete_outfit.player_style, nil and outfit_loaded and complete_outfit.suit_variation, complete_outfit.mask.mask_id, player_peer._equipped_armor_id, complete_outfit.armor_skin)
     end
     
     unit_inventory.set_mask_visibility = function (self, state) HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state) end
