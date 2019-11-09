@@ -165,7 +165,11 @@ if not ThirdPerson then
       local player_peer = managers.network:session():local_peer()
       local complete_outfit = player_peer:blackmarket_outfit()
       local outfit_loaded = player_peer:is_outfit_loaded()
-      managers.criminals.set_character_visual_state(self._unit, player_peer:character(), false, player_peer._visual_seed, nil and outfit_loaded and complete_outfit.player_style, nil and outfit_loaded and complete_outfit.suit_variation, complete_outfit.mask.mask_id, player_peer._equipped_armor_id, complete_outfit.armor_skin)
+      local player_style_u_name = tweak_data.blackmarket:get_player_style_value(complete_outfit.player_style, player_peer:character(), "third_unit")
+      if player_style_u_name then
+        managers.dyn_resource:load(Idstring("unit"), Idstring(player_style_u_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE)
+      end
+      managers.criminals.set_character_visual_state(self._unit, player_peer:character(), false, player_peer._visual_seed, outfit_loaded and complete_outfit.player_style, outfit_loaded and complete_outfit.suit_variation, complete_outfit.mask.mask_id, player_peer._equipped_armor_id, complete_outfit.armor_skin)
     end
     
     unit_inventory.set_mask_visibility = function (self, state) HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state) end
