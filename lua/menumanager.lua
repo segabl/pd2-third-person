@@ -170,7 +170,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     priority = 80
   })
   
-  local mod = BLT.Mods.GetModOwnerOfFile and BLT.Mods:GetModOwnerOfFile(ThirdPerson.mod_path) or BLT.Mods.GetMod and BLT.Mods:GetMod("Third Person")
+  local mod = BLT.Mods:GetMod(ThirdPerson.mod_path:gsub(".+/(.+)/$", "%1"))
   if not mod then
     ThirdPerson:log("ERROR: Could not get mod data, keybinds can not be added!")
     return
