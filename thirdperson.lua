@@ -1,3 +1,6 @@
+TheFixesPreventer = TheFixesPreventer or {}
+TheFixesPreventer.crash_ver_char_send_basenetwork = true
+
 if not ThirdPerson then
 
   _G.ThirdPerson = {}
