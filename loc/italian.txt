@@ -1,0 +1,20 @@
+{
+  "ThirdPerson_menu_main_name" : "Terza Persona",
+  "ThirdPerson_menu_main_desc" : "Controlla le impostazioni della telecamera in terza persona",
+  "ThirdPerson_menu_third_person_enabled" : "Abilitata",
+  "ThirdPerson_menu_third_person_enabled_desc" : "Abilita o disabilita la mod (richiede il riavvio)",
+  "ThirdPerson_menu_third_person_start_in_tp" : "Avvia colpo in terza persona",
+  "ThirdPerson_menu_third_person_start_in_tp_desc" : "Passa alla terza persona subito dopo l'inizio del colpo",
+  "ThirdPerson_menu_third_person_immersive_first_person" : "Modalità prima persona immersiva",
+  "ThirdPerson_menu_third_person_immersive_first_person_desc" : "Passa alla prima persona immersiva invece che alla terza persona",
+  "ThirdPerson_menu_cam_x" : "Posizione orizzontale telecamera (X)",
+  "ThirdPerson_menu_cam_y" : "Distanza Telecamera (Y)",
+  "ThirdPerson_menu_cam_z" : "Altezza Telecamera (Z)",
+  "ThirdPerson_menu_first_person_on_steelsight" : "Usare il mirino attiva la prima persona",
+  "ThirdPerson_menu_first_person_on_downed" : "Andare a terra attiva la prima persona",
+  "ThirdPerson_menu_third_person_crosshair" : "Mostra il mirino in terza persona",
+  "ThirdPerson_menu_flip_camera_side" : "Cambia lato della telecamera",
+  "ThirdPerson_menu_flip_camera_side_desc" : "Tasto per invertire la posizione orizzontale della telecamera",
+  "ThirdPerson_menu_toggle_cam_mode" : "Abilita/disabilita la mod",
+  "ThirdPerson_menu_toggle_cam_mode_desc" : "Tasto per passare dalla prima alla terza persona"
+}
