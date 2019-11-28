@@ -212,7 +212,9 @@ if not ThirdPerson then
     
     unit_movement:set_character_anim_variables()
     unit_movement:update_armor()
-    unit_movement:set_head_visibility(not ThirdPerson.settings.immersive_first_person)
+    if ThirdPerson.settings.immersive_first_person then
+      unit_movement:set_head_visibility(false)
+    end
     
     local level_data = managers.job and managers.job:current_level_data()
     if level_data and level_data.player_sequence then
