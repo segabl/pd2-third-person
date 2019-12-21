@@ -3,12 +3,12 @@ if not ThirdPerson.settings.enabled then
 end
 
 local enter_original = PlayerStandard.enter
-function PlayerStandard:enter(...)
-  enter_original(self, ...)
-  if self._unit == ThirdPerson.fp_unit and self._state_data._was_in_tp then
+function PlayerStandard:enter(state_data, enter_data, ...)
+  if self._unit == ThirdPerson.fp_unit and state_data._was_in_tp then
     self._unit:camera():set_third_person()
-    self._state_data._was_in_tp = nil
+    state_data._was_in_tp = nil
   end
+  enter_original(self, state_data, enter_data, ...)
 end
 
 local _start_action_steelsight_original = PlayerStandard._start_action_steelsight

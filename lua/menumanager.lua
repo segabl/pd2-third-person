@@ -54,6 +54,9 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     ThirdPerson:save()
     if alive(ThirdPerson.fp_unit) then
       ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()
+      if alive(ThirdPerson.unit) then
+        ThirdPerson.unit:movement():set_head_visibility(not ThirdPerson.settings.immersive_first_person)
+      end
     end
   end
   
