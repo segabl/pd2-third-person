@@ -128,6 +128,16 @@ function PlayerCamera:set_third_person()
   end
 end
 
+function PlayerCamera:update_camera_unit_visibility(state)
+  self._camera_unit:set_visible(state)
+  if self._camera_unit:spawn_manager() then
+    local char_mesh_unit = self._camera_unit:spawn_manager():get_unit("char_mesh")
+    if alive(char_mesh_unit) then
+      char_mesh_unit:set_enabled(state)
+    end
+  end
+end
+
 local update_original = PlayerCamera.update
 function PlayerCamera:update(unit, t, dt, ...)
   update_original(self, unit, t, dt, ...)
@@ -136,7 +146,7 @@ function PlayerCamera:update(unit, t, dt, ...)
     self._transition = self._transition + 10 * dt
     if self._transition >= 1 then
       self._transition = 1
-      self._camera_unit:set_visible(true)
+      self:update_camera_unit_visibility(true)
       self._vp:set_camera(self._camera_object)
       local wbase = ThirdPerson.fp_unit:inventory():equipped_unit():base()
       wbase:set_visibility_state(true)
@@ -148,7 +158,7 @@ function PlayerCamera:update(unit, t, dt, ...)
     if not wbase._invisible then
       wbase:set_visibility_state(false)
       wbase:set_gadget_silent(false)
-      self._camera_unit:set_visible(false)
+      self:update_camera_unit_visibility(false)
     end
     if self._transition > 0 then
       self._transition = self._transition - 10 * dt
