@@ -17,7 +17,7 @@ end
 local set_character_visual_state_original = CriminalsManager.set_character_visual_state
 function CriminalsManager.set_character_visual_state(unit, ...)
   set_character_visual_state_original(unit, ...)
-  if unit:camera() and unit:camera():third_person() then
+  if alive(unit) and unit:camera() and unit:camera():third_person() then
     unit:camera():update_camera_unit_visibility(false)
   end
 end
