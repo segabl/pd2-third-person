@@ -136,7 +136,7 @@ if not ThirdPerson then
     end
     
     unit_movement.set_position = function (self, pos)
-      if alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:camera()._transition > 0.5 then
+      if alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:camera():first_person() then
         self._unit:set_position(Vector3(0, 0, -10000))
       else
         -- partial fix for movement sync, not perfect as it overrides some movement animations like jumping

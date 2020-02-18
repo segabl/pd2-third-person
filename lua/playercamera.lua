@@ -2,13 +2,9 @@ if not ThirdPerson.settings.enabled then
   return
 end
 
-local mrot = Rotation()
-local mvec1 = Vector3()
-local mvec2 = Vector3()
-local lookat = Vector3()
-
 local init_original = PlayerCamera.init
 function PlayerCamera:init(...)
+  init_original(self, ...)
   self._third_person = false
   self._tp_forward = Vector3()
   self._slot_mask = managers.slot:get_mask("world_geometry")
@@ -22,14 +18,7 @@ function PlayerCamera:init(...)
     h = 32,
     visible = ThirdPerson.settings.third_person_crosshair
   })
-  self._tp_camera_object = World:create_camera()
-  self._tp_camera_object:set_near_range(3)
-  self._tp_camera_object:set_far_range(250000)
-  self._tp_camera_object:set_fov(75)
-  self._transition = 1
   self:refresh_tp_cam_settings()
-
-  init_original(self, ...)
 end
 
 function PlayerCamera:refresh_tp_cam_settings()
@@ -43,67 +32,50 @@ function PlayerCamera:refresh_tp_cam_settings()
   self._crosshair:set_visible(self:third_person() and ThirdPerson.settings.third_person_crosshair)
 end
 
-function PlayerCamera:check_set_third_person_position()
-  if self._transition >= 1 then
+local mvec = Vector3()
+function PlayerCamera:check_set_third_person_position(pos, rot)
+  if self:first_person() then
     return
   end
   if not ThirdPerson.settings.immersive_first_person then
     -- set cam position
-    mvector3.set(mvec1, self._tp_cam_dir)
-    mvector3.rotate_with(mvec1, self._m_cam_rot)
-    local ray = World:raycast("ray", self._m_cam_pos, self._m_cam_pos + mvec1 * (self._tp_cam_dis + 20), "slot_mask", self._slot_mask)
-    mvector3.multiply(mvec1, ray and ray.distance - 20 or self._tp_cam_dis)
-    mvector3.add(mvec1, self._m_cam_pos)
-    mvector3.multiply(mvec1, (1 - self._transition))
-    mvector3.set(mvec2, self._m_cam_pos)
-    mvector3.multiply(mvec2, self._transition)
-    mvector3.add(mvec1, mvec2)
-    self._tp_camera_object:set_position(mvec1)
-    --mvector3.set(mvec2, lookat)
-    --mvector3.subtract(mvec2, mvec1)
-    --mrotation.set_look_at(mrot, mvec2, math.UP)
-    --self._tp_camera_object:set_rotation(self._m_cam_rot)
+    mvector3.set(mvec, self._tp_cam_dir)
+    mvector3.rotate_with(mvec, rot)
+    local ray = World:raycast("ray", pos, pos + mvec * (self._tp_cam_dis + 20), "slot_mask", self._slot_mask)
+    mvector3.multiply(mvec, ray and ray.distance - 20 or self._tp_cam_dis)
+    mvector3.add(mvec, pos)
+    self._camera_controller:set_camera(mvec)
   elseif alive(ThirdPerson.unit) then
-    local hpos = ThirdPerson.unit:movement():m_head_pos()
-    local hrot = ThirdPerson.unit:movement():m_head_rot()
-    mvector3.set(mvec1, hpos)
-    mrotation.y(self._m_cam_rot, mvec2)
-    mvector3.multiply(mvec2, 10)
-    mvector3.add(mvec1, mvec2)
-    mrotation.z(self._m_cam_rot, mvec2)
-    mvector3.multiply(mvec2, 10)
-    mvector3.add(mvec1, mvec2)
-    self._tp_camera_object:set_position(mvec1)
-    --mvector3.set(mvec2, lookat)
-    --mvector3.subtract(mvec2, mvec1)
-    --mrotation.set_look_at(mrot, mvec2, math.UP)
-    --self._tp_camera_object:set_rotation(self._m_cam_rot)
+    local pos = ThirdPerson.unit:movement():m_head_pos()
+    local rot = ThirdPerson.unit:movement():m_head_rot()
+    self._camera_controller:set_camera(pos + rot:y() * 10 + rot:z() * 10)
   end
   -- set crosshair
   if self._crosshair:visible() then
-    mvector3.set(lookat, self._m_cam_fwd)
-    mvector3.multiply(lookat, 10000)
-    mvector3.add(lookat, self._m_cam_pos)
-    local ray = World:raycast("ray", self._m_cam_pos, lookat, "slot_mask", self._slot_mask)
-    mvector3.set(lookat, self._m_cam_fwd)
-    mvector3.multiply(lookat, ray and ray.distance or 10000)
-    mvector3.add(lookat, self._m_cam_pos)
-    
-    local screen_pos = managers.hud._workspace:world_to_screen(self._tp_camera_object, lookat)
-    self._crosshair:set_center(screen_pos.x, screen_pos.y)
+    mvector3.set(mvec, self:forward())
+    ray = World:raycast("ray", self:position(), self:position() + mvec * 10000, "slot_mask", self._slot_mask_all)
+    mvector3.multiply(mvec, ray and ray.distance or 10000)
+    mvector3.add(mvec, self:position())
+    mvector3.set(mvec, managers.hud._workspace:world_to_screen(self._camera_object, mvec))
+    self._crosshair:set_center(mvec.x, mvec.y)
+    if ray and ray.unit and managers.enemy:is_enemy(ray.unit) then
+      self._crosshair:set_image("units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_yellow_il")
+    else
+      self._crosshair:set_image("units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_green_il")
+    end
   end
 end
 
 local set_position_original = PlayerCamera.set_position
-function PlayerCamera:set_position(...)
-  set_position_original(self, ...)
-  self:check_set_third_person_position()
+function PlayerCamera:set_position(pos)
+  set_position_original(self, pos)
+  self:check_set_third_person_position(pos, self:rotation())
 end
 
 local set_rotation_original = PlayerCamera.set_rotation
-function PlayerCamera:set_rotation(...)
-  set_rotation_original(self, ...)
-  self._tp_camera_object:set_rotation(self._m_cam_rot)
+function PlayerCamera:set_rotation(rot)
+  set_rotation_original(self, rot)
+  self:check_set_third_person_position(self:position(), rot)
 end
 
 function PlayerCamera:toggle_third_person()
@@ -119,54 +91,16 @@ end
 function PlayerCamera:set_first_person()
   self._third_person = false
   self._crosshair:set_visible(false)
+  if alive(ThirdPerson.unit) then
+    ThirdPerson.unit:movement():set_position(Vector3())
+  end
 end
 
 function PlayerCamera:set_third_person()
   if alive(ThirdPerson.unit) and not self._toggled_fp then
     self._third_person = true
     self._crosshair:set_visible(ThirdPerson.settings.third_person_crosshair)
-  end
-end
-
-function PlayerCamera:update_camera_unit_visibility(state)
-  self._camera_unit:set_visible(state)
-  if self._camera_unit:spawn_manager() then
-    local char_mesh_unit = self._camera_unit:spawn_manager():get_unit("char_mesh")
-    if alive(char_mesh_unit) then
-      char_mesh_unit:set_enabled(state)
-    end
-  end
-end
-
-local update_original = PlayerCamera.update
-function PlayerCamera:update(unit, t, dt, ...)
-  update_original(self, unit, t, dt, ...)
-
-  if not self._third_person and self._transition < 1 then
-    self._transition = self._transition + 10 * dt
-    if self._transition >= 1 then
-      self._transition = 1
-      self:update_camera_unit_visibility(true)
-      self._vp:set_camera(self._camera_object)
-      local wbase = ThirdPerson.fp_unit:inventory():equipped_unit():base()
-      wbase:set_visibility_state(true)
-      wbase:set_gadget_silent(true)
-    end
-  end
-  if self._third_person then
-    local wbase = ThirdPerson.fp_unit:inventory():equipped_unit():base()
-    if not wbase._invisible then
-      wbase:set_visibility_state(false)
-      wbase:set_gadget_silent(false)
-      self:update_camera_unit_visibility(false)
-    end
-    if self._transition > 0 then
-      self._transition = self._transition - 10 * dt
-      if self._transition <= 0 then
-        self._transition = 0
-        self._vp:set_camera(self._tp_camera_object)
-      end
-    end
+    ThirdPerson.unit:movement():set_position(Vector3())
   end
 end
 
