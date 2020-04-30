@@ -171,7 +171,15 @@ if not ThirdPerson then
       if player_style_u_name then
         managers.dyn_resource:load(Idstring("unit"), Idstring(player_style_u_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE)
       end
-      managers.criminals.set_character_visual_state(self._unit, player_peer:character(), false, player_peer._visual_seed, outfit_loaded and complete_outfit.player_style, outfit_loaded and complete_outfit.suit_variation, complete_outfit.mask.mask_id, player_peer._equipped_armor_id, complete_outfit.armor_skin)
+      managers.criminals.set_character_visual_state(self._unit, player_peer:character(), {
+        is_local_peer = false,
+        visual_seed = player_peer._visual_seed,
+        player_style = outfit_loaded and complete_outfit.player_style,
+        suit_variation = outfit_loaded and complete_outfit.suit_variation,
+        mask_id = complete_outfit.mask.mask_id,
+        armor_id = player_peer._equipped_armor_id,
+        armor_skin = complete_outfit.armor_skin
+      })
     end
     
     unit_inventory.set_mask_visibility = function (self, state) HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state) end
