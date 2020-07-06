@@ -166,7 +166,15 @@ if not ThirdPerson then
     unit_movement.update_visual_state = function (self)
       local player_peer = managers.network:session():local_peer()
       local complete_outfit = player_peer:blackmarket_outfit()
-      local outfit_loaded = player_peer:is_outfit_loaded()
+      local character = player_peer:character()
+      local player_style_u_name = tweak_data.blackmarket:get_player_style_value(complete_outfit.player_style, character, "third_unit")
+      if player_style_u_name then
+        managers.dyn_resource:load(Idstring("unit"), Idstring(player_style_u_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE)
+      end
+      local gloves_u_name = tweak_data.blackmarket:get_glove_value(complete_outfit.glove_id, character, "third_unit", complete_outfit.player_style, complete_outfit.suit_variation)
+      if gloves_u_name then
+        managers.dyn_resource:load(Idstring("unit"), Idstring(gloves_u_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE)
+      end
       complete_outfit.is_local_peer = false
       complete_outfit.visual_seed = player_peer._visual_seed
       complete_outfit.armor_id = player_peer._equipped_armor_id
