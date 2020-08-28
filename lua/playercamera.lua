@@ -8,14 +8,14 @@ function PlayerCamera:init(...)
   self._third_person = false
   self._tp_forward = Vector3()
   self._slot_mask = managers.slot:get_mask("world_geometry")
-  self._slot_mask_all = managers.slot:get_mask("bullet_impact_targets")
+  self._slot_mask_all = managers.slot:get_mask("bullet_impact_targets_no_criminals")
   local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2)
   self._crosshair = hud.panel:bitmap({
     name = "third_person_crosshair",
     texture = "units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_green_il",
     blend_mode = "add",
-    w = 32,
-    h = 32,
+    w = ThirdPerson.settings.third_person_crosshair_size,
+    h = ThirdPerson.settings.third_person_crosshair_size,
     visible = ThirdPerson.settings.third_person_crosshair
   })
   self:refresh_tp_cam_settings()
@@ -29,6 +29,12 @@ function PlayerCamera:refresh_tp_cam_settings()
       mvector3.multiply(self._tp_cam_dir, 1 / self._tp_cam_dis)
     end
   end
+  local data = tweak_data.gui.weapon_texture_switches.types.sight[ThirdPerson.settings.third_person_crosshair_style] or tweak_data.gui.weapon_texture_switches.types.sight[1]
+  local suffix = tweak_data.gui.weapon_texture_switches.types.sight.suffix
+  self._crosshair_path_1 = data.texture_path:gsub(suffix .. "$", "_green" .. suffix)
+  self._crosshair_path_2 = data.texture_path:gsub(suffix .. "$", "_yellow" .. suffix)
+  self._crosshair:set_image(self._crosshair_path_1)
+  self._crosshair:set_size(ThirdPerson.settings.third_person_crosshair_size, ThirdPerson.settings.third_person_crosshair_size)
   self._crosshair:set_visible(self:third_person() and ThirdPerson.settings.third_person_crosshair)
 end
 
@@ -53,15 +59,15 @@ function PlayerCamera:check_set_third_person_position(pos, rot)
   -- set crosshair
   if self._crosshair:visible() then
     mvector3.set(mvec, self:forward())
-    ray = World:raycast("ray", self:position(), self:position() + mvec * 10000, "slot_mask", self._slot_mask_all)
+    local ray = World:raycast("ray", self:position(), self:position() + mvec * 10000, "slot_mask", self._slot_mask_all)
     mvector3.multiply(mvec, ray and ray.distance or 10000)
     mvector3.add(mvec, self:position())
     mvector3.set(mvec, managers.hud._workspace:world_to_screen(self._camera_object, mvec))
     self._crosshair:set_center(mvec.x, mvec.y)
     if ray and ray.unit and managers.enemy:is_enemy(ray.unit) then
-      self._crosshair:set_image("units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_yellow_il")
+      self._crosshair:set_image(self._crosshair_path_2)
     else
-      self._crosshair:set_image("units/pd2_dlc1/weapons/wpn_effects_textures/wpn_sight_reticle_l_1_green_il")
+      self._crosshair:set_image(self._crosshair_path_1)
     end
   end
 end

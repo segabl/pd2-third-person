@@ -17,10 +17,12 @@ if not ThirdPerson then
     cam_z = 15,
     first_person_on_steelsight = true,
     first_person_on_downed = false,
-    third_person_crosshair = false,
+    third_person_crosshair = true,
+    third_person_crosshair_style = 1,
+    third_person_crosshair_size = 32,
     immersive_first_person = false
   }
-  
+
   function ThirdPerson:log(...)
     if DebugConsole and con then
       con:print("[ThirdPerson]", ...)
@@ -32,7 +34,7 @@ if not ThirdPerson then
       log(str)
     end
   end
-  
+
   local husk_names = {
     wild = "units/pd2_dlc_wild/characters/npc_criminals_wild_1/player_criminal_wild_husk",
     joy = "units/pd2_dlc_joy/characters/npc_criminals_joy_1/player_criminal_joy_husk"
@@ -50,18 +52,18 @@ if not ThirdPerson then
     local char_id = player_peer:character_id()
     local unit_name = husk_names[char_id] or tweak_data.blackmarket.characters[char_id].npc_unit:gsub("(.+)/npc_", "%1/player_") .. "_husk"
     local unit_name_ids = Idstring(unit_name)
-    
+
     if not DB:has(Idstring("unit"), unit_name_ids) then
       ThirdPerson:log("ERROR: Could not find player husk unit for " .. char_id .. "! Assumed " .. unit_name)
       self.fp_unit = nil
       self.unit = nil
       return
     end
-    
+
     self.fp_unit = player
     self.unit = alive(self.unit) and self.unit or World:spawn_unit(unit_name_ids, pos, rot)
     Network:detach_unit(self.unit)
-    
+
     -- The third person unit should be destroyed whenever the first person unit is destroyed
     player:base().pre_destroy = function (self, ...)
       if alive(ThirdPerson.unit) then
@@ -81,15 +83,15 @@ if not ThirdPerson then
       self._unit:inventory():pre_destroy(self._unit)
       UnitBase.pre_destroy(self, unit)
     end
-    
+
     -- No contours
     self.unit:contour().add = function () end
-    
+
     -- No revive SO
     unit_movement._register_revive_SO = function () end
     unit_movement.set_need_assistance = function (self, need_assistance) self._need_assistance = need_assistance end
     unit_movement.set_need_revive = function (self, need_revive) self._need_revive = need_revive end
-    
+
     local look_vec_modified = Vector3()
     unit_movement.update = function (self, ...)
       HuskPlayerMovement.update(self, ...)
@@ -100,7 +102,7 @@ if not ThirdPerson then
         self:set_look_dir_instant(look_vec_modified)
       end
     end
-    
+
     unit_movement.sync_action_walk_nav_point = function (self, pos, speed, action)
       speed = speed or 1
       self._movement_path = self._movement_path or {}
@@ -134,7 +136,7 @@ if not ThirdPerson then
         table.remove(self._movement_history, 1)
       end
     end
-    
+
     unit_movement.set_position = function (self, pos)
       if alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:camera():first_person() then
         self._unit:set_position(Vector3(0, 0, -10000))
@@ -143,7 +145,7 @@ if not ThirdPerson then
         HuskPlayerMovement.set_position(self, alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:movement():m_pos() or pos)
       end
     end
-    
+
     unit_movement.set_head_visibility = function (self, visible)
       self._obj_visibilities = self._obj_visibilities or {}
       local char_name = managers.criminals:character_name_by_unit(self._unit)
@@ -181,9 +183,9 @@ if not ThirdPerson then
       complete_outfit.mask_id = complete_outfit.mask.mask_id
       managers.criminals.set_character_visual_state(self._unit, player_peer:character(), complete_outfit)
     end
-    
+
     unit_inventory.set_mask_visibility = function (self, state) HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state) end
-    
+
     -- adjust weapon switch to support custom weapons
     unit_inventory._perform_switch_equipped_weapon = function (self, weap_index, blueprint_string, cosmetics_string, peer)
       local equipped = ThirdPerson.fp_unit:inventory():equipped_unit()
@@ -206,28 +208,28 @@ if not ThirdPerson then
         self:add_unit_by_factory_name(weapon_name, true, true, blueprint_string, cosmetics_string)
       end
     end
-    
+
     -- We don't want our third person unit to make any sound, so we're plugging empty functions here
     unit_sound.say = function () end
     unit_sound.play = function () end
     unit_sound._play = function () end
-    
+
     -- Setup some stuff
     unit_inventory:set_melee_weapon(player_peer:melee_id(), true)
-    
+
     self.unit:damage():run_sequence_simple(managers.blackmarket:character_sequence_by_character_id(player_peer:character_id(), player_peer:id()))
-    
+
     unit_movement:set_character_anim_variables()
     unit_movement:update_visual_state()
     if ThirdPerson.settings.immersive_first_person then
       unit_movement:set_head_visibility(false)
     end
-    
+
     local level_data = managers.job and managers.job:current_level_data()
     if level_data and level_data.player_sequence then
       self.unit:damage():run_sequence_simple(level_data.player_sequence)
     end
-    
+
     -- Call missed events
     local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
     if handler then
@@ -238,17 +240,17 @@ if not ThirdPerson then
       end
       self.delayed_events = {}
     end
-    
+
     if self.settings.start_in_tp then
       player:camera():set_third_person()
     else
       player:camera()._toggled_fp = true
     end
-    
+
     -- Unregister from groupai manager so it doesnt count as an actual criminal
     managers.groupai:state():unregister_criminal(self.unit)
   end
-  
+
   function ThirdPerson:save()
     local file = io.open(self.save_path .. "third_person.txt", "w+")
     if file then

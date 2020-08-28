@@ -6,7 +6,7 @@ Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInitThirdPerson
 		if mod:GetName() == "PAYDAY 2 THAI LANGUAGE Mod" and mod:IsEnabled() then
             custom_language = "thai"
             break
-        end  
+        end
   end
   if custom_language then
     loc:load_localization_file(ThirdPerson.mod_path .. "loc/" .. custom_language ..".txt")
@@ -40,7 +40,7 @@ Hooks:Add("MenuManagerSetupCustomMenus", "MenuManagerSetupCustomMenusThirdPerson
 end)
 
 Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThirdPerson", function(menu_manager, nodes)
-  
+
   MenuCallbackHandler.ThirdPerson_value = function(self, item)
     ThirdPerson.settings[item:name()] = item:value()
     ThirdPerson:save()
@@ -48,7 +48,12 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
       ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()
     end
   end
-  
+
+  MenuCallbackHandler.ThirdPerson_value_rounded = function(self, item)
+    item:set_value(math.round(item:value()))
+    MenuCallbackHandler.ThirdPerson_value(self, item)
+  end
+
   MenuCallbackHandler.ThirdPerson_toggle = function(self, item)
     ThirdPerson.settings[item:name()] = item:value() == "on"
     ThirdPerson:save()
@@ -59,7 +64,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
       end
     end
   end
-  
+
   MenuHelper:AddToggle({
     id = "enabled",
     title = "ThirdPerson_menu_third_person_enabled",
@@ -79,7 +84,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     menu_id = menu_id_main,
     priority = 101
   })
-  
+
   MenuHelper:AddToggle({
     id = "immersive_first_person",
     title = "ThirdPerson_menu_third_person_immersive_first_person",
@@ -89,14 +94,14 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     menu_id = menu_id_main,
     priority = 99
   })
-  
+
   MenuHelper:AddDivider({
     id = "divider2",
     size = 24,
     menu_id = menu_id_main,
     priority = 98
   })
-  
+
   MenuHelper:AddSlider({
     id = "cam_x",
     title = "ThirdPerson_menu_cam_x",
@@ -133,14 +138,14 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     menu_id = menu_id_main,
     priority = 95
   })
-  
+
   MenuHelper:AddDivider({
     id = "divider3",
     size = 24,
     menu_id = menu_id_main,
     priority = 90
   })
-  
+
   MenuHelper:AddToggle({
     id = "first_person_on_steelsight",
     title = "ThirdPerson_menu_first_person_on_steelsight",
@@ -157,28 +162,57 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     menu_id = menu_id_main,
     priority = 88
   })
+
+  MenuHelper:AddDivider({
+    id = "divider4",
+    size = 24,
+    menu_id = menu_id_main,
+    priority = 87
+  })
+
   MenuHelper:AddToggle({
     id = "third_person_crosshair",
     title = "ThirdPerson_menu_third_person_crosshair",
     callback = "ThirdPerson_toggle",
     value = ThirdPerson.settings.third_person_crosshair,
     menu_id = menu_id_main,
-    priority = 87
+    priority = 86
   })
-  
+  MenuHelper:AddMultipleChoice({
+    id = "third_person_crosshair_style",
+    title = "ThirdPerson_menu_third_person_crosshair_style",
+    callback = "ThirdPerson_value",
+    value = ThirdPerson.settings.third_person_crosshair_style,
+    items = table.collect(tweak_data.gui.weapon_texture_switches.types.sight, function (entry) return entry.name_id end),
+    menu_id = menu_id_main,
+    priority = 85
+  })
+  MenuHelper:AddSlider({
+    id = "third_person_crosshair_size",
+    title = "ThirdPerson_menu_third_person_crosshair_size",
+    callback = "ThirdPerson_value_rounded",
+    value = ThirdPerson.settings.third_person_crosshair_size,
+    min = 8,
+    max = 128,
+    step = 8,
+    show_value = true,
+    menu_id = menu_id_main,
+    priority = 84
+  })
+
   MenuHelper:AddDivider({
-    id = "divider3",
+    id = "divider5",
     size = 24,
     menu_id = menu_id_main,
     priority = 80
   })
-  
+
   local mod = BLT.Mods:GetMod(ThirdPerson.mod_path:gsub(".+/(.+)/$", "%1"))
   if not mod then
     ThirdPerson:log("ERROR: Could not get mod data, keybinds can not be added!")
     return
   end
-  
+
   BLT.Keybinds:register_keybind(mod, { id = "toggle_cam_mode", allow_game = true, show_in_menu = false, callback = function()
     if alive(ThirdPerson.unit) and alive(ThirdPerson.fp_unit) then
       ThirdPerson.fp_unit:camera():toggle_third_person()
@@ -186,7 +220,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
   end })
   local bind = BLT.Keybinds:get_keybind("toggle_cam_mode")
   local key = bind and bind:Key() or ""
-  
+
   MenuHelper:AddKeybinding({
     id = "toggle_cam_mode",
     title = "ThirdPerson_menu_toggle_cam_mode",
@@ -197,7 +231,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     menu_id = menu_id_main,
     priority = 79
   })
-  
+
   BLT.Keybinds:register_keybind(mod, { id = "flip_camera_side", allow_game = true, show_in_menu = false, callback = function()
     if alive(ThirdPerson.unit) and alive(ThirdPerson.fp_unit) then
       ThirdPerson.settings.cam_x = -ThirdPerson.settings.cam_x
@@ -206,7 +240,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
   end })
   local bind = BLT.Keybinds:get_keybind("flip_camera_side")
   local key = bind and bind:Key() or ""
-  
+
   MenuHelper:AddKeybinding({
     id = "flip_camera_side",
     title = "ThirdPerson_menu_flip_camera_side",
@@ -217,7 +251,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     menu_id = menu_id_main,
     priority = 78
   })
-  
+
 end)
 
 Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenusPlayerThirdPerson", function(menu_manager, nodes)
