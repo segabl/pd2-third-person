@@ -1,7 +1,3 @@
-if not ThirdPerson.settings.enabled then
-  return
-end
-
 local enter_original = PlayerBleedOut.enter
 function PlayerBleedOut:enter(...)
   if self._unit == ThirdPerson.fp_unit and ThirdPerson.settings.first_person_on_downed and self._unit:camera():third_person() then

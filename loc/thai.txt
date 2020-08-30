@@ -1,8 +1,6 @@
 {
   "ThirdPerson_menu_main_name" : "มุมมองบุคคลที่ 3",
   "ThirdPerson_menu_main_desc" : "การตั้งค่าการควบคุมตัวละครในมุมมองบุคคลที่ 3",
-  "ThirdPerson_menu_third_person_enabled" : "ใช้งาน",
-  "ThirdPerson_menu_third_person_enabled_desc" : "เปิดใช้งานหรือปิดใช้งาน mod นี้ (จำเป็นต้องรีโหลด)",
   "ThirdPerson_menu_third_person_start_in_tp" : "เริ่มต้นในมุมมองบุคคลที่ 3",
   "ThirdPerson_menu_third_person_start_in_tp_desc" : "เริ่มมุมมองบุคคลที่ 3 ทันทีหลังจากที่เริ่มเล่นด่าน",
   "ThirdPerson_menu_third_person_immersive_first_person" : "โหมดมุมมองบุคคลที่ 1 ที่น่าตื่นตาตื่นใจ",

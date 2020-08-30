@@ -10,7 +10,6 @@ if not ThirdPerson then
   ThirdPerson.fp_unit = nil
   ThirdPerson.delayed_events = {}
   ThirdPerson.settings = {
-    enabled = true,
     start_in_tp = true,
     cam_x = 80,
     cam_y = 120,
@@ -24,15 +23,12 @@ if not ThirdPerson then
   }
 
   function ThirdPerson:log(...)
-    if DebugConsole and con then
-      con:print("[ThirdPerson]", ...)
-    else
-      local str = "[ThirdPerson] "
-      table.for_each_value({ ... }, function (v)
-        str = str .. tostring(v) .. "  "
-      end)
-      log(str)
-    end
+    local str = "[ThirdPerson] "
+    table.for_each_value({ ... }, function (v)
+      str = str .. tostring(v) .. "  "
+    end)
+    log(str)
+    print(str)
   end
 
   local husk_names = {

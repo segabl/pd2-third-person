@@ -1,8 +1,6 @@
 {
   "ThirdPerson_menu_main_name" : "第三人称",
   "ThirdPerson_menu_main_desc" : "控制第三人称视角设置",
-  "ThirdPerson_menu_third_person_enabled" : "启用",
-  "ThirdPerson_menu_third_person_enabled_desc" : "启用或禁用MOD(需要重新加载)",
   "ThirdPerson_menu_third_person_start_in_tp" : "从第三人称开始劫案",
   "ThirdPerson_menu_third_person_start_in_tp_desc" : "在劫案开始时立即切换到第三人称",
   "ThirdPerson_menu_third_person_immersive_first_person" : "身临其境的第一人称模式",

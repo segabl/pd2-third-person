@@ -1,8 +1,6 @@
 {
   "ThirdPerson_menu_main_name" : "Terza Persona",
   "ThirdPerson_menu_main_desc" : "Controlla le impostazioni della telecamera in terza persona",
-  "ThirdPerson_menu_third_person_enabled" : "Abilitata",
-  "ThirdPerson_menu_third_person_enabled_desc" : "Abilita o disabilita la mod (richiede il riavvio)",
   "ThirdPerson_menu_third_person_start_in_tp" : "Avvia colpo in terza persona",
   "ThirdPerson_menu_third_person_start_in_tp_desc" : "Passa alla terza persona subito dopo l'inizio del colpo",
   "ThirdPerson_menu_third_person_immersive_first_person" : "Modalità prima persona immersiva",

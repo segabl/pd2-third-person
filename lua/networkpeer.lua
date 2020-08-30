@@ -1,7 +1,3 @@
-if not ThirdPerson.settings.enabled then
-  return
-end
-
 -- setup the third person unit whenever the local player is set
 local set_unit_original = NetworkPeer.set_unit
 function NetworkPeer:set_unit(unit, ...)

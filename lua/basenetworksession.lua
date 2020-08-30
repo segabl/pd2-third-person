@@ -1,7 +1,3 @@
-if not ThirdPerson.settings.enabled then
-  return
-end
-
 function BaseNetworkSession:peer_by_unit(unit)
   return self:peer_by_unit_key(unit:key())
 end
@@ -43,15 +39,15 @@ function BaseNetworkSession:send_to_peers_synched(...)
         if type(func) == "string" and not func:find("walk") then
           --ThirdPerson:log(...)
         end
-      
+
         table.remove(params, 1)
         params[1] = ThirdPerson.unit
-        
+
         local handler = managers.network and managers.network._handlers and managers.network._handlers.unit
         if handler and handler[func] then
           handler[func](handler, unpack(params))
         end
-        
+
       end
     elseif not blocked_network_events[func] and ThirdPerson.fp_unit == params[2] then
       -- everything that is sent to peers before the third person unit is spawned (= everything that happens during NetworkPeer:spawn_unit)

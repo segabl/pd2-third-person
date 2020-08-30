@@ -1,8 +1,6 @@
 {
   "ThirdPerson_menu_main_name" : "Troisième personne",
   "ThirdPerson_menu_main_desc" : "Contrôle les options de la caméra à la troisième personne",
-  "ThirdPerson_menu_third_person_enabled" : "Activé",
-  "ThirdPerson_menu_third_person_enabled_desc" : "Active ou désactive le mod (Nécessite un redémarrage)",
   "ThirdPerson_menu_third_person_start_in_tp" : "Commencer à la troisième personne",
   "ThirdPerson_menu_third_person_start_in_tp_desc" : "Passe la vue à la troisième personne au début du braquage",
   "ThirdPerson_menu_third_person_immersive_first_person" : "Immersive first person mode",

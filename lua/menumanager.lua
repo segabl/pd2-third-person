@@ -3,7 +3,7 @@ ThirdPerson:load()
 Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInitThirdPerson", function(loc)
   local custom_language
   for _, mod in pairs(BLT and BLT.Mods:Mods() or {}) do
-		if mod:GetName() == "PAYDAY 2 THAI LANGUAGE Mod" and mod:IsEnabled() then
+    if mod:GetName() == "PAYDAY 2 THAI LANGUAGE Mod" and mod:IsEnabled() then
             custom_language = "thai"
             break
         end
@@ -64,16 +64,6 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
       end
     end
   end
-
-  MenuHelper:AddToggle({
-    id = "enabled",
-    title = "ThirdPerson_menu_third_person_enabled",
-    desc = "ThirdPerson_menu_third_person_enabled_desc",
-    callback = "ThirdPerson_toggle",
-    value = ThirdPerson.settings.enabled,
-    menu_id = menu_id_main,
-    priority = 111
-  })
 
   MenuHelper:AddToggle({
     id = "start_in_tp",
@@ -218,13 +208,12 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
       ThirdPerson.fp_unit:camera():toggle_third_person()
     end
   end })
-  local bind = BLT.Keybinds:get_keybind("toggle_cam_mode")
-  local key = bind and bind:Key() or ""
+  local key = BLT.Keybinds:get_keybind("toggle_cam_mode"):Key() or "k"
 
   MenuHelper:AddKeybinding({
     id = "toggle_cam_mode",
     title = "ThirdPerson_menu_toggle_cam_mode",
-    desc= "ThirdPerson_menu_toggle_cam_mode_desc",
+    desc = "ThirdPerson_menu_toggle_cam_mode_desc",
     connection_name = "toggle_cam_mode",
     binding = key,
     button = key,
@@ -238,13 +227,12 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
       ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()
     end
   end })
-  local bind = BLT.Keybinds:get_keybind("flip_camera_side")
-  local key = bind and bind:Key() or ""
+  local key = BLT.Keybinds:get_keybind("flip_camera_side"):Key() or "l"
 
   MenuHelper:AddKeybinding({
     id = "flip_camera_side",
     title = "ThirdPerson_menu_flip_camera_side",
-    desc= "ThirdPerson_menu_flip_camera_side_desc",
+    desc = "ThirdPerson_menu_flip_camera_side_desc",
     connection_name = "flip_camera_side",
     binding = key,
     button = key,

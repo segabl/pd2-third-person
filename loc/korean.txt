@@ -1,8 +1,6 @@
 {
   "ThirdPerson_menu_main_name" : "3인칭",
   "ThirdPerson_menu_main_desc" : "3인칭 카메라를 설정합니다.",
-  "ThirdPerson_menu_third_person_enabled" : "켜기",
-  "ThirdPerson_menu_third_person_enabled_desc" : "모드를 켜고 끕니다 (재시작이 필요합니다)",
   "ThirdPerson_menu_third_person_start_in_tp" : "게임 시작시 3인칭으로 시작",
   "ThirdPerson_menu_third_person_start_in_tp_desc" : "게임 시작시 바로 3인칭으로 변경됩니다",
   "ThirdPerson_menu_third_person_immersive_first_person" : "Immersive first person mode",

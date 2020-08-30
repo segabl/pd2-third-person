@@ -1,7 +1,3 @@
-if not ThirdPerson.settings.enabled then
-  return
-end
-
 local enter_original = PlayerDriving.enter
 function PlayerDriving:enter(...)
   if self._unit == ThirdPerson.fp_unit and self._unit:camera():third_person() then

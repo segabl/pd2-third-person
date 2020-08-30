@@ -1,8 +1,6 @@
 {
   "ThirdPerson_menu_main_name" : "Terceira pessoa",
   "ThirdPerson_menu_main_desc" : "Configura os controles de 3ª pessoa",
-  "ThirdPerson_menu_third_person_enabled" : "Ativado",
-  "ThirdPerson_menu_third_person_enabled_desc" : "Ativa ou desativa o mod (Necessita reiniciar)",
   "ThirdPerson_menu_third_person_start_in_tp" : "Iniciar em terceira pessoa",
   "ThirdPerson_menu_third_person_start_in_tp_desc" : "Muda para terceira pessoa quando o heist iniciar",
   "ThirdPerson_menu_third_person_immersive_first_person" : "Immersive first person mode",

@@ -1,7 +1,3 @@
-if not ThirdPerson.settings.enabled then
-  return
-end
-
 local enter_original = PlayerStandard.enter
 function PlayerStandard:enter(state_data, enter_data, ...)
   if self._unit == ThirdPerson.fp_unit and state_data._was_in_tp then

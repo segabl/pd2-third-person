@@ -1,8 +1,6 @@
 {
   "ThirdPerson_menu_main_name" : "Third Person",
   "ThirdPerson_menu_main_desc" : "Control third person camera settings",
-  "ThirdPerson_menu_third_person_enabled" : "Enabled",
-  "ThirdPerson_menu_third_person_enabled_desc" : "Enables or disables the mod (requires reload)",
   "ThirdPerson_menu_third_person_start_in_tp" : "Start in third person",
   "ThirdPerson_menu_third_person_start_in_tp_desc" : "Switch to third person immediately on heist start",
   "ThirdPerson_menu_third_person_immersive_first_person" : "Immersive first person mode",
