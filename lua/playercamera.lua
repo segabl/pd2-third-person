@@ -1,7 +1,3 @@
-if not ThirdPerson.settings.enabled then
-  return
-end
-
 local init_original = PlayerCamera.init
 function PlayerCamera:init(...)
   init_original(self, ...)
@@ -82,6 +78,13 @@ local set_rotation_original = PlayerCamera.set_rotation
 function PlayerCamera:set_rotation(rot)
   set_rotation_original(self, rot)
   self:check_set_third_person_position(self:position(), rot)
+end
+
+local destroy_original = PlayerCamera.destroy
+function PlayerCamera:destroy(...)
+  destroy_original(self, ...)
+  local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2)
+  hud.panel:remove(self._crosshair)
 end
 
 function PlayerCamera:toggle_third_person()
