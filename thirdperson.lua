@@ -31,6 +31,7 @@ if not ThirdPerson then
     print(str)
   end
 
+  local unit_ids = Idstring("unit")
   local husk_names = {
     wild = "units/pd2_dlc_wild/characters/npc_criminals_wild_1/player_criminal_wild_husk",
     joy = "units/pd2_dlc_joy/characters/npc_criminals_joy_1/player_criminal_joy_husk"
@@ -49,7 +50,7 @@ if not ThirdPerson then
     local unit_name = husk_names[char_id] or tweak_data.blackmarket.characters[char_id].npc_unit:gsub("(.+)/npc_", "%1/player_") .. "_husk"
     local unit_name_ids = Idstring(unit_name)
 
-    if not DB:has(Idstring("unit"), unit_name_ids) then
+    if not DB:has(unit_ids, unit_name_ids) then
       ThirdPerson:log("ERROR: Could not find player husk unit for " .. char_id .. "! Assumed " .. unit_name)
       self.fp_unit = nil
       self.unit = nil
@@ -167,11 +168,11 @@ if not ThirdPerson then
       local character = player_peer:character()
       local player_style_u_name = tweak_data.blackmarket:get_player_style_value(complete_outfit.player_style, character, "third_unit")
       if player_style_u_name then
-        managers.dyn_resource:load(Idstring("unit"), Idstring(player_style_u_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE)
+        managers.dyn_resource:load(unit_ids, Idstring(player_style_u_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE)
       end
       local gloves_u_name = tweak_data.blackmarket:get_glove_value(complete_outfit.glove_id, character, "third_unit", complete_outfit.player_style, complete_outfit.suit_variation)
       if gloves_u_name then
-        managers.dyn_resource:load(Idstring("unit"), Idstring(gloves_u_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE)
+        managers.dyn_resource:load(unit_ids, Idstring(gloves_u_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE)
       end
       complete_outfit.is_local_peer = false
       complete_outfit.visual_seed = player_peer._visual_seed
@@ -184,24 +185,36 @@ if not ThirdPerson then
 
     -- adjust weapon switch to support custom weapons
     unit_inventory._perform_switch_equipped_weapon = function (self, weap_index, blueprint_string, cosmetics_string, peer)
-      local equipped = ThirdPerson.fp_unit:inventory():equipped_unit()
-      local weapon_name = equipped and equipped:base()._factory_id and equipped:base()._factory_id .. "_npc" or "wpn_fps_ass_amcar_npc"
-      cosmetics_string = cosmetics_string or self:cosmetics_string_from_peer(peer, weapon_name)
-      local factory_weapon = tweak_data.weapon.factory[weapon_name]
-      if not factory_weapon or not DB:has(Idstring("unit"), Idstring(factory_weapon.unit)) then
-        local new_name = weapon_name:gsub("_npc$", "")
-        local weapon = tweak_data.weapon[managers.weapon_factory:get_weapon_id_by_factory_id(new_name)]
-        local based_on = weapon and weapon.based_on and tweak_data.weapon[weapon.based_on]
-        local based_on_name = based_on and tweak_data.upgrades.definitions[based_on]
-        local selection = { "wpn_fps_pis_g17_npc", "wpn_fps_ass_amcar_npc" }
-        new_name = based_on_name and based_on.use_data.selection_index == weapon.use_data.selection_index and (based_on_name .. "_npc") or weapon and selection[weapon.use_data.selection_index] or selection[1]
-        ThirdPerson:log("WARNING: " .. weapon_name .. " does not exist! Replaced with " .. new_name)
-        weapon_name = new_name
-        blueprint_string = managers.weapon_factory:blueprint_to_string(weapon_name, managers.weapon_factory:get_default_blueprint_by_factory_id(weapon_name))
-        cosmetics_string = "nil-1-0"
+      self._checked_weapons = self._checked_weapons or {}
+      if not self._checked_weapons[weap_index] then
+        local equipped = ThirdPerson.fp_unit:inventory():equipped_unit()
+        local checked_weap = {
+          name = equipped:base()._factory_id and equipped:base()._factory_id .. "_npc" or "wpn_fps_ass_amcar_npc",
+          cosmetics_string = cosmetics_string or self:cosmetics_string_from_peer(peer, checked_weap.name),
+          blueprint_string = blueprint_string or equipped:blueprint_to_string()
+        }
+
+        local factory_weapon = tweak_data.weapon.factory[checked_weap.name]
+        if not factory_weapon or factory_weapon.custom then
+          local weapon = tweak_data.weapon[managers.weapon_factory:get_weapon_id_by_factory_id(equipped:base()._factory_id or "wpn_fps_ass_amcar_npc")]
+          local based_on = weapon and weapon.based_on and tweak_data.weapon[weapon.based_on]
+          local based_on_name = based_on and tweak_data.upgrades.definitions[based_on]
+          local default = { "wpn_fps_pis_g17_npc", "wpn_fps_ass_amcar_npc" }
+          local new_name = based_on_name and based_on.use_data.selection_index == weapon.use_data.selection_index and (based_on_name .. "_npc") or weapon and default[weapon.use_data.selection_index] or default[1]
+
+          ThirdPerson:log("WARNING: Replaced custom weapon " .. checked_weap.name .. " with " .. new_name)
+
+          checked_weap.name = new_name
+          checked_weap.blueprint_string = managers.weapon_factory:blueprint_to_string(checked_weap.name, managers.weapon_factory:get_default_blueprint_by_factory_id(checked_weap.name))
+          checked_weap.cosmetics_string = "nil-1-0"
+        end
+
+        self._checked_weapons[weap_index] = checked_weap
       end
-      if weapon_name then
-        self:add_unit_by_factory_name(weapon_name, true, true, blueprint_string, cosmetics_string)
+
+      local checked_weap = self._checked_weapons[weap_index]
+      if checked_weap then
+        self:add_unit_by_factory_name(checked_weap.name, true, true, checked_weap.blueprint_string, checked_weap.cosmetics_string)
       end
     end
 

@@ -208,7 +208,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
       ThirdPerson.fp_unit:camera():toggle_third_person()
     end
   end })
-  local key = BLT.Keybinds:get_keybind("toggle_cam_mode"):Key() or "k"
+  local key = BLT.Keybinds:get_keybind("toggle_cam_mode"):Key() or ""
 
   MenuHelper:AddKeybinding({
     id = "toggle_cam_mode",
@@ -227,7 +227,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
       ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()
     end
   end })
-  local key = BLT.Keybinds:get_keybind("flip_camera_side"):Key() or "l"
+  local key = BLT.Keybinds:get_keybind("flip_camera_side"):Key() or ""
 
   MenuHelper:AddKeybinding({
     id = "flip_camera_side",
