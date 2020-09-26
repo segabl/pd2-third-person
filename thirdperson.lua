@@ -198,7 +198,7 @@ if not ThirdPerson then
         if not factory_weapon or factory_weapon.custom then
           local weapon = tweak_data.weapon[managers.weapon_factory:get_weapon_id_by_factory_id(equipped:base()._factory_id or "wpn_fps_ass_amcar_npc")]
           local based_on = weapon and weapon.based_on and tweak_data.weapon[weapon.based_on]
-          local based_on_name = based_on and tweak_data.upgrades.definitions[based_on]
+          local based_on_name = based_on and tweak_data.upgrades.definitions[weapon.based_on] and tweak_data.upgrades.definitions[weapon.based_on].factory_id
           local default = { "wpn_fps_pis_g17_npc", "wpn_fps_ass_amcar_npc" }
           local new_name = based_on_name and based_on.use_data.selection_index == weapon.use_data.selection_index and (based_on_name .. "_npc") or weapon and default[weapon.use_data.selection_index] or default[1]
 
