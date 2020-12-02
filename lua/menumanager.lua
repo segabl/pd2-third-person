@@ -197,13 +197,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     priority = 80
   })
 
-  local mod = BLT.Mods:GetMod(ThirdPerson.mod_path:gsub(".+/(.+)/$", "%1"))
-  if not mod then
-    ThirdPerson:log("ERROR: Could not get mod data, keybinds can not be added!")
-    return
-  end
-
-  BLT.Keybinds:register_keybind(mod, { id = "toggle_cam_mode", allow_game = true, show_in_menu = false, callback = function()
+  BLT.Keybinds:register_keybind(ThirdPerson.mod_instance, { id = "toggle_cam_mode", allow_game = true, show_in_menu = false, callback = function()
     if alive(ThirdPerson.unit) and alive(ThirdPerson.fp_unit) then
       ThirdPerson.fp_unit:camera():toggle_third_person()
     end
@@ -221,7 +215,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
     priority = 79
   })
 
-  BLT.Keybinds:register_keybind(mod, { id = "flip_camera_side", allow_game = true, show_in_menu = false, callback = function()
+  BLT.Keybinds:register_keybind(ThirdPerson.mod_instance, { id = "flip_camera_side", allow_game = true, show_in_menu = false, callback = function()
     if alive(ThirdPerson.unit) and alive(ThirdPerson.fp_unit) then
       ThirdPerson.settings.cam_x = -ThirdPerson.settings.cam_x
       ThirdPerson.fp_unit:camera():refresh_tp_cam_settings()

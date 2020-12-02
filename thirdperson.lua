@@ -3,9 +3,10 @@ TheFixesPreventer.crash_ver_char_send_basenetwork = true
 
 if not ThirdPerson then
 
-  _G.ThirdPerson = {}
+  ThirdPerson = {}
   ThirdPerson.mod_path = ModPath
   ThirdPerson.save_path = SavePath
+  ThirdPerson.mod_instance = ModInstance
   ThirdPerson.unit = nil
   ThirdPerson.fp_unit = nil
   ThirdPerson.delayed_events = {}
