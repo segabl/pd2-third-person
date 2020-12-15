@@ -1,0 +1,18 @@
+{
+	"ThirdPerson_menu_main_name" : "第三人称",
+	"ThirdPerson_menu_main_desc" : "控制第三人称视角设置",
+	"ThirdPerson_menu_third_person_start_in_tp" : "从第三人称开始劫案",
+	"ThirdPerson_menu_third_person_start_in_tp_desc" : "在劫案开始时立即切换到第三人称",
+	"ThirdPerson_menu_third_person_immersive_first_person" : "身临其境的第一人称模式",
+	"ThirdPerson_menu_third_person_immersive_first_person_desc" : "将视角模式切换为身临其境的第一人称而不是第三人称",
+	"ThirdPerson_menu_cam_x" : "视角水平(X)位置",
+	"ThirdPerson_menu_cam_y" : "视角距离(Y)位置",
+	"ThirdPerson_menu_cam_z" : "视角高度(Z)位置",
+	"ThirdPerson_menu_first_person_on_steelsight" : "瞄准时激活第一人称",
+	"ThirdPerson_menu_first_person_on_downed" : "Going down activates first person",
+	"ThirdPerson_menu_third_person_crosshair" : "在第三人称展示十字准星",
+	"ThirdPerson_menu_flip_camera_side" : "翻转视角位置",
+	"ThirdPerson_menu_flip_camera_side_desc" : "键位绑定使其翻转水平视角的位置",
+	"ThirdPerson_menu_toggle_cam_mode" : "切换视角模式",
+	"ThirdPerson_menu_toggle_cam_mode_desc" : "键位绑定使其在第一人称和第三人称之间切换"
+}
