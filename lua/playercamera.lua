@@ -66,17 +66,13 @@ function PlayerCamera:check_set_third_person_position(pos, rot)
 	end
 end
 
-local set_position_original = PlayerCamera.set_position
-function PlayerCamera:set_position(pos)
-	set_position_original(self, pos)
+Hooks:PostHook(PlayerCamera, "set_position", "set_position_third_person", function (self, pos)
 	self:check_set_third_person_position(pos, self:rotation())
-end
+end)
 
-local set_rotation_original = PlayerCamera.set_rotation
-function PlayerCamera:set_rotation(rot)
-	set_rotation_original(self, rot)
+Hooks:PostHook(PlayerCamera, "set_rotation", "set_rotation_third_person", function (self, rot)
 	self:check_set_third_person_position(self:position(), rot)
-end
+end)
 
 Hooks:PreHook(PlayerCamera, "destroy", "destroy_third_person", function (self)
 	if self._crosshair then
