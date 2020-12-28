@@ -101,6 +101,7 @@ function PlayerCamera:set_first_person()
 	if alive(ThirdPerson.unit) then
 		ThirdPerson.unit:movement():set_position(Vector3())
 	end
+	self._camera_unit:base()._wants_fp = nil
 end
 
 function PlayerCamera:set_third_person()
@@ -109,6 +110,7 @@ function PlayerCamera:set_third_person()
 		self._crosshair:set_visible(ThirdPerson.settings.third_person_crosshair)
 		ThirdPerson.unit:movement():set_position(Vector3())
 	end
+	self._camera_unit:base()._wants_fp = nil
 end
 
 function PlayerCamera:first_person()
