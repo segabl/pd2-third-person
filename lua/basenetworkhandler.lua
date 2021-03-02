@@ -2,5 +2,5 @@
 -- so we can use this to call UnitNetworkHandler methods without a sender
 local _verify_sender_original = BaseNetworkHandler._verify_sender
 function BaseNetworkHandler._verify_sender(rpc)
-	return rpc and _verify_sender_original(rpc) or managers.network:session():local_peer()
+	return rpc and _verify_sender_original(rpc) or managers.network and managers.network:session() and managers.network:session():local_peer()
 end
