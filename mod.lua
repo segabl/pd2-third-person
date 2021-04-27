@@ -60,6 +60,7 @@ if not ThirdPerson then
 
 		self.fp_unit = player
 		self.unit = alive(self.unit) and self.unit or World:spawn_unit(unit_name_ids, pos, rot)
+		self.head_obj = self.unit:get_object(Idstring("Head"))
 		Network:detach_unit(self.unit)
 
 		-- The third person unit should be destroyed whenever the first person unit is destroyed

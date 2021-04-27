@@ -14,7 +14,7 @@ Hooks:PostHook(FPCameraPlayerBase, "_update_stance", "_update_stance_third_perso
 		if not cam then
 			return
 		end
-		if self._wants_fp and not self._shoulder_stance.transition then
+		if self._wants_fp and (not self._shoulder_stance.transition or ThirdPerson.settings.immersive_first_person) then
 			cam:set_first_person()
 		elseif not self._wants_fp then
 			cam:set_third_person()

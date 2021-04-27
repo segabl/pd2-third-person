@@ -1,3 +1,9 @@
+local mvec_set = mvector3.set
+local mvec_add = mvector3.add
+local mvec_mul = mvector3.multiply
+local mvec_rot_with = mvector3.rotate_with
+local mvec_len = mvector3.length
+
 Hooks:PostHook(PlayerCamera, "init", "init_third_person", function (self)
 	self._third_person = false
 	self._tp_forward = Vector3()
@@ -18,9 +24,9 @@ end)
 function PlayerCamera:refresh_tp_cam_settings()
 	if not ThirdPerson.settings.immersive_first_person then
 		self._tp_cam_dir = Vector3(ThirdPerson.settings.cam_x, -ThirdPerson.settings.cam_y, ThirdPerson.settings.cam_z)
-		self._tp_cam_dis = mvector3.length(self._tp_cam_dir)
+		self._tp_cam_dis = mvec_len(self._tp_cam_dir)
 		if self._tp_cam_dis > 0 then
-			mvector3.multiply(self._tp_cam_dir, 1 / self._tp_cam_dis)
+			mvec_mul(self._tp_cam_dir, 1 / self._tp_cam_dis)
 		end
 	end
 	local data = tweak_data.gui.weapon_texture_switches.types.sight[ThirdPerson.settings.third_person_crosshair_style] or tweak_data.gui.weapon_texture_switches.types.sight[1]
@@ -39,24 +45,34 @@ function PlayerCamera:check_set_third_person_position(pos, rot)
 	end
 	if not ThirdPerson.settings.immersive_first_person then
 		-- set cam position
-		mvector3.set(mvec, self._tp_cam_dir)
-		mvector3.rotate_with(mvec, rot)
+		mvec_set(mvec, self._tp_cam_dir)
+		mvec_rot_with(mvec, rot)
 		local ray = World:raycast("ray", pos, pos + mvec * (self._tp_cam_dis + 20), "slot_mask", self._slot_mask)
-		mvector3.multiply(mvec, ray and ray.distance - 20 or self._tp_cam_dis)
-		mvector3.add(mvec, pos)
+		mvec_mul(mvec, ray and ray.distance - 20 or self._tp_cam_dis)
+		mvec_add(mvec, pos)
 		self._camera_controller:set_camera(mvec)
 	elseif alive(ThirdPerson.unit) then
-		local pos = ThirdPerson.unit:movement():m_head_pos()
-		local rot = ThirdPerson.unit:movement():m_head_rot()
-		self._camera_controller:set_camera(pos + rot:y() * 10 + rot:z() * 10)
+		if not self._skip_frames then
+			local pos = ThirdPerson.head_obj:position()
+			local rot = ThirdPerson.head_obj:rotation()
+			mvec_set(mvec, rot:y())
+			mvec_mul(mvec, 10)
+			mvec_add(mvec, pos)
+		else
+			local rot = self:rotation()
+			mvec_set(mvec, rot:x() * 10 + rot:y() * 20 + rot:z() * 20)
+			mvec_add(mvec, self:position())
+			self._skip_frames = self._skip_frames > 1 and self._skip_frames - 1 or nil
+		end
+		self._camera_controller:set_camera(mvec)
 	end
 	-- set crosshair
 	if self._crosshair:visible() then
-		mvector3.set(mvec, self:forward())
+		mvec_set(mvec, self:forward())
 		local ray = World:raycast("ray", self:position(), self:position() + mvec * 10000, "slot_mask", self._slot_mask_all)
-		mvector3.multiply(mvec, ray and ray.distance or 10000)
-		mvector3.add(mvec, self:position())
-		mvector3.set(mvec, managers.hud._workspace:world_to_screen(self._camera_object, mvec))
+		mvec_mul(mvec, ray and ray.distance or 10000)
+		mvec_add(mvec, self:position())
+		mvec_set(mvec, managers.hud._workspace:world_to_screen(self._camera_object, mvec))
 		self._crosshair:set_center(mvec.x, mvec.y)
 		if ray and ray.unit and managers.enemy:is_enemy(ray.unit) then
 			self._crosshair:set_image(self._crosshair_path_2)
@@ -111,6 +127,7 @@ function PlayerCamera:set_third_person()
 		ThirdPerson.unit:movement():set_position(Vector3())
 	end
 	self._camera_unit:base()._wants_fp = nil
+	self._skip_frames = 4
 end
 
 function PlayerCamera:first_person()
