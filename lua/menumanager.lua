@@ -197,6 +197,23 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
 		priority = 80
 	})
 
+	MenuHelper:AddToggle({
+		id = "custom_weapons",
+		title = "ThirdPerson_menu_third_person_custom_weapons",
+		desc = "ThirdPerson_menu_third_person_custom_weapons_desc",
+		callback = "ThirdPerson_toggle",
+		value = ThirdPerson.settings.custom_weapons,
+		menu_id = menu_id_main,
+		priority = 79
+	})
+
+	MenuHelper:AddDivider({
+		id = "divider6",
+		size = 24,
+		menu_id = menu_id_main,
+		priority = 70
+	})
+
 	BLT.Keybinds:register_keybind(ThirdPerson.mod_instance, { id = "toggle_cam_mode", allow_game = true, show_in_menu = false, callback = function()
 		if alive(ThirdPerson.unit) and alive(ThirdPerson.fp_unit) then
 			ThirdPerson.fp_unit:camera():toggle_third_person()
@@ -212,7 +229,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
 		binding = key,
 		button = key,
 		menu_id = menu_id_main,
-		priority = 79
+		priority = 69
 	})
 
 	BLT.Keybinds:register_keybind(ThirdPerson.mod_instance, { id = "flip_camera_side", allow_game = true, show_in_menu = false, callback = function()
@@ -231,7 +248,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "MenuManagerPopulateCustomMenusThird
 		binding = key,
 		button = key,
 		menu_id = menu_id_main,
-		priority = 78
+		priority = 68
 	})
 
 end)

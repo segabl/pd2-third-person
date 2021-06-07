@@ -20,7 +20,8 @@ if not ThirdPerson then
 		third_person_crosshair = true,
 		third_person_crosshair_style = 1,
 		third_person_crosshair_size = 32,
-		immersive_first_person = false
+		immersive_first_person = false,
+		custom_weapons = false
 	}
 
 	function ThirdPerson:log(...)
@@ -186,6 +187,7 @@ if not ThirdPerson then
 		unit_inventory.set_mask_visibility = function (self, state) HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state) end
 
 		-- adjust weapon switch to support custom weapons
+		local default_weaps = { "wpn_fps_pis_g17_npc", "wpn_fps_ass_amcar_npc" }
 		unit_inventory._perform_switch_equipped_weapon = function (self, weap_index, blueprint_string, cosmetics_string, peer)
 			self._checked_weapons = self._checked_weapons or {}
 			if not self._checked_weapons[weap_index] then
@@ -197,14 +199,13 @@ if not ThirdPerson then
 				}
 
 				local factory_weapon = tweak_data.weapon.factory[checked_weap.name]
-				if not factory_weapon or factory_weapon.custom then
+				if not factory_weapon or factory_weapon.custom and not ThirdPerson.settings.custom_weapons then
 					local weapon = tweak_data.weapon[managers.weapon_factory:get_weapon_id_by_factory_id(equipped:base()._factory_id or "wpn_fps_ass_amcar_npc")]
 					local based_on = weapon and weapon.based_on and tweak_data.weapon[weapon.based_on]
 					local based_on_name = based_on and tweak_data.upgrades.definitions[weapon.based_on] and tweak_data.upgrades.definitions[weapon.based_on].factory_id
-					local default = { "wpn_fps_pis_g17_npc", "wpn_fps_ass_amcar_npc" }
-					local new_name = based_on_name and based_on.use_data.selection_index == weapon.use_data.selection_index and (based_on_name .. "_npc") or weapon and default[weapon.use_data.selection_index] or default[1]
+					local new_name = based_on_name and based_on.use_data.selection_index == weapon.use_data.selection_index and (based_on_name .. "_npc") or weapon and default_weaps[weapon.use_data.selection_index] or default_weaps[1]
 
-					ThirdPerson:log("WARNING: Replaced custom weapon " .. checked_weap.name .. " with " .. new_name)
+					ThirdPerson:log("Replaced custom weapon " .. checked_weap.name .. " with " .. new_name)
 
 					checked_weap.name = new_name
 					checked_weap.blueprint_string = managers.weapon_factory:blueprint_to_string(checked_weap.name, managers.weapon_factory:get_default_blueprint_by_factory_id(checked_weap.name))

@@ -13,6 +13,8 @@
 	"ThirdPerson_menu_third_person_crosshair" : "Show crosshair in third person",
 	"ThirdPerson_menu_third_person_crosshair_style" : "Crosshair style",
 	"ThirdPerson_menu_third_person_crosshair_size" : "Crosshair size",
+	"ThirdPerson_menu_third_person_custom_weapons" : "Display custom weapons",
+	"ThirdPerson_menu_third_person_custom_weapons_desc" : "Allows displaying of custom weapons in third person\nMay cause issues with weapons that are not properly set up for it",
 	"ThirdPerson_menu_flip_camera_side" : "Flip camera side",
 	"ThirdPerson_menu_flip_camera_side_desc" : "Keybind to flip horizontal camera position",
 	"ThirdPerson_menu_toggle_cam_mode" : "Toggle camera mode",

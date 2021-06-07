@@ -13,6 +13,8 @@
 	"ThirdPerson_menu_third_person_crosshair" : "Fadenkreuz in Third Person anzeigen",
 	"ThirdPerson_menu_third_person_crosshair_style" : "Fadenkreuz Stil",
 	"ThirdPerson_menu_third_person_crosshair_size" : "Fadenkreuz Größe",
+	"ThirdPerson_menu_third_person_custom_weapons" : "Mod-Waffen anzeigen",
+	"ThirdPerson_menu_third_person_custom_weapons_desc" : "Zeige Mod-Waffen in der Third Person Ansicht\nKann Probleme bei Waffen verursachen die dafür nicht ausgelegt sind",
 	"ThirdPerson_menu_flip_camera_side" : "Kameraausrichtung spiegeln",
 	"ThirdPerson_menu_flip_camera_side_desc" : "Taste um die horizontale Kameraausrichtung zu wechseln",
 	"ThirdPerson_menu_toggle_cam_mode" : "Kameramodus wechseln",
