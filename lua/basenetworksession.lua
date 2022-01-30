@@ -21,7 +21,8 @@ local blocked_network_events = {
 	criminal_hurt = true,
 	set_look_dir = true,
 	set_unit = true,
-	sync_unit_event_id_16 = true
+	sync_unit_event_id_16 = true,
+	copr_teammate_heal = true
 }
 Hooks:PreHook(BaseNetworkSession, "send_to_peers_synched", "send_to_peers_synched_third_person", function (self, ...)
 	if not alive(ThirdPerson.fp_unit) then
