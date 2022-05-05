@@ -40,7 +40,7 @@ end
 
 local mvec = Vector3()
 function PlayerCamera:check_set_third_person_position(pos, rot)
-	if self:first_person() then
+	if self:first_person() or _G.IS_VR then
 		return
 	end
 	if not ThirdPerson.settings.immersive_first_person then
