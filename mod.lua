@@ -165,26 +165,9 @@ if not ThirdPerson then
 			self._unit:inventory():set_mask_visibility(visible and self._mask_visibility)
 		end
 
-		unit_movement.update_visual_state = function (self)
-			local player_peer = managers.network:session():local_peer()
-			local complete_outfit = player_peer:blackmarket_outfit()
-			local character = player_peer:character()
-			local player_style_u_name = tweak_data.blackmarket:get_player_style_value(complete_outfit.player_style, character, "third_unit")
-			if player_style_u_name then
-				managers.dyn_resource:load(unit_ids, Idstring(player_style_u_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE)
-			end
-			local gloves_u_name = tweak_data.blackmarket:get_glove_value(complete_outfit.glove_id, character, "third_unit", complete_outfit.player_style, complete_outfit.suit_variation)
-			if gloves_u_name then
-				managers.dyn_resource:load(unit_ids, Idstring(gloves_u_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE)
-			end
-			complete_outfit.is_local_peer = false
-			complete_outfit.visual_seed = player_peer._visual_seed
-			complete_outfit.armor_id = player_peer._equipped_armor_id
-			complete_outfit.mask_id = complete_outfit.mask.mask_id
-			managers.criminals.set_character_visual_state(self._unit, player_peer:character(), complete_outfit)
+		unit_inventory.set_mask_visibility = function (self, state)
+			HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state)
 		end
-
-		unit_inventory.set_mask_visibility = function (self, state) HuskPlayerInventory.set_mask_visibility(self, not ThirdPerson.settings.immersive_first_person and state) end
 
 		-- adjust weapon switch to support custom weapons
 		local default_weaps = { "wpn_fps_pis_g17_npc", "wpn_fps_ass_amcar_npc" }
@@ -232,7 +215,6 @@ if not ThirdPerson then
 		self.unit:damage():run_sequence_simple(managers.blackmarket:character_sequence_by_character_id(player_peer:character_id(), player_peer:id()))
 
 		unit_movement:set_character_anim_variables()
-		unit_movement:update_visual_state()
 		if ThirdPerson.settings.immersive_first_person then
 			unit_movement:set_head_visibility(false)
 		end
