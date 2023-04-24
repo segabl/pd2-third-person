@@ -2,7 +2,7 @@
 	"name" : "Third Person",
 	"description" : "Enables third person mode",
 	"author" : "Hoppip",
-	"contact" : "Hoppip#1630",
+	"vr_disabled" : true,
 	"color" : "0.043 0.808 0.6",
 	"image" : "mod.png",
 	"version" : "1.7.1",
