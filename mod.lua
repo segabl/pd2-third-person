@@ -104,25 +104,22 @@ if not ThirdPerson then
 		end
 
 		unit_movement.sync_action_walk_nav_point = function (self, pos, speed, action)
-			speed = speed or 1
 			self._movement_path = self._movement_path or {}
 			self._movement_history = self._movement_history or {}
+
+			local state = alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:movement():current_state()
+			if not state then
+				return
+			end
+
 			local path_len = #self._movement_path
 			pos = pos or path_len > 0 and self._movement_path[path_len].pos or mvector3.copy(self:m_pos())
-			local on_ground = self:_chk_ground_ray(pos)
-			local type = "ground"
-			if self._zipline and self._zipline.enabled then
-				type = "zipline"
-			elseif not on_ground then
-				type = "air"
-			end
-			local prev_node = self._movement_history[#self._movement_history]
-			if type == "ground" and prev_node and self:action_is(prev_node.action, "jump") then
-				type = "air"
-			end
+
+			local type = state._state_data.on_zipline and "zipline" or (not state._gnd_ray or state._is_jumping) and "air" or "ground"
+
 			local node = {
 				pos = pos,
-				speed = speed,
+				speed = speed or 1,
 				type = type,
 				action = {action}
 			}
@@ -137,12 +134,15 @@ if not ThirdPerson then
 			end
 		end
 
+		local hide_vec = Vector3(0, 0, -10000)
 		unit_movement.set_position = function (self, pos)
 			if alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:camera():first_person() then
-				self._unit:set_position(Vector3(0, 0, -10000))
+				self._unit:set_position(hide_vec)
 			else
 				-- partial fix for movement sync, not perfect as it overrides some movement animations like jumping
-				HuskPlayerMovement.set_position(self, alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:movement():m_pos() or pos)
+				pos = alive(ThirdPerson.fp_unit) and ThirdPerson.fp_unit:movement():m_pos() or pos
+				self._unit:set_position(pos)
+				mvector3.set(self._m_pos, pos)
 			end
 		end
 
